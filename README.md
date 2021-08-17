@@ -83,7 +83,7 @@ If you run into the following error check privileges:
 ## Options
 
 ```
-./servicedef <hosts.json> <services.json>
+./servicedef hosts.json [services.json]
 ```
 
 | Switch | Default | Description |
