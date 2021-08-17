@@ -83,13 +83,13 @@ If you run into the following error check privileges:
 ## Options
 
 ```
-./servicedef <services.json> <hosts.json>
+./servicedef <hosts.json> <services.json>
 ```
 
 | Switch | Default | Description |
 | --- | --- | --- |
 | -p | false | print nmap progress in logfile every 60 seconds
-| -s | false | don't print to stdout |
+| -q | false | don't print to stdout |
 | -l <logfile> | -l scan.log | write logs to <logfile> |
 | -g <graphviz dotfile> | false | export results as <graphviz dotfile> |
 | -a | false | Use nmap ack scan (doesn't require root privileges) |
