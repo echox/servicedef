@@ -1,0 +1,25 @@
+digraph  {
+
+	rankdir=LR;
+
+	n1[label="internet"];
+	n2[label="172.16.10.10\nloadblancer-node-1"];
+	n3[label="172.16.10.11\nloadblancer-node-2"];
+	n4[label="172.16.10.15\njumpserver"];
+	n5[label="Port 80\nLoad Balancer) "];
+	n6[label="Port 80\nLoad Balancer) "];
+	n7[label="Port 443\nLoad Balancer) "];
+	n8[label="Port 443\nLoad Balancer) "];
+	n9[color="red",label="Port 5222\n(ssh) 7.9p1 Debian 10+deb10u2",style="filled"];
+	n10[label="Port 22\nJumpservice"];
+
+	n1->n2;
+	n1->n3;
+	n1->n4;
+	n2->n5;
+	n2->n7;
+	n2->n9;
+	n3->n6;
+	n3->n8;
+	n4->n10;
+}

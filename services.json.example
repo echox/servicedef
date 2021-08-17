@@ -1,0 +1,21 @@
+[{
+	"id":"Load Balancer",
+	"description":"main httpd",
+	"ports":[
+		{
+		"port":80,
+		"hosts":["172.16.10.10","172.16.10.11"]
+		},{
+		"port":443,
+		"hosts":["172.16.10.10","172.16.10.11"]
+		}
+	]
+},{
+
+	"id":"Jumpservice",
+	"description":"ssh jumpservice",
+	"ports":[{
+		"port":22,
+		"hosts":["172.16.10.15"]
+		}]
+}]
