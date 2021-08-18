@@ -89,12 +89,13 @@ If you run into the following error check privileges:
 
 | Switch | Default | Description |
 | --- | --- | --- |
-| -p | -p 60 | print nmap progress, set 0 to disable |
+| -p | 60 | print nmap progress, set 0 to disable |
 | -q | false | don't print to stdout |
-| -l logfile | -l scan.log | write logs to logfile |
+| -l logfile | scan.log | write logs to logfile |
 | -g graphviz.dot | false | export results as graphviz dotfile |
 | -c | false | Use nmap connect scan (doesn't require root privileges) |
 | -f | false | Use nmap fast scan instead of scanning for all ports |
+| -h | | Print list of options and default values | 
 
 ## Graphviz Export
 ```cat graph.dot | dot -Grankdir=LR -Tpdf > graph.pdf && open graph.pdf```
