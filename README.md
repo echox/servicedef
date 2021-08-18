@@ -74,7 +74,8 @@ Results can also be exported as graphviz dot file:
 Servicedef uses nmap for host discovery and portscanning.
 Nmap must be installed on the system.
 
-It also uses Syn-Stealth-Scans which requires root privileges.
+It also uses syn scans by default which requires root privileges.
+Use -c to switch back to nmaps connect scans (`-sT`).
 
 If you run into the following error check privileges:
 
@@ -92,7 +93,7 @@ If you run into the following error check privileges:
 | -q | false | don't print to stdout |
 | -l logfile | -l scan.log | write logs to logfile |
 | -g graphviz.dot | false | export results as graphviz dotfile |
-| -a | false | Use nmap ack scan (doesn't require root privileges) |
+| -c | false | Use nmap connect scan (doesn't require root privileges) |
 | -f | false | Use nmap fast scan instead of scanning for all ports |
 
 ## Graphviz Export

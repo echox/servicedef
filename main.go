@@ -11,6 +11,7 @@ import (
 	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/scan"
 	"github.com/echox/servicedef/util"
+	"github.com/echox/servicedef/config"
 
 	"github.com/fatih/color"
 )
@@ -18,7 +19,7 @@ import (
 func main() {
 	log.Println("servicedef v0")
 
-	cfg := config()
+	cfg := config.Init()
 
 	var services []ServiceDef
 	if cfg.Services {
@@ -47,7 +48,7 @@ func main() {
 	color.Set(color.FgGreen)
 	log.Println("portscanning hosts, this might take a really long time...")
 	color.Unset()
-	results := scan.Scan_hosts(hosts, cfg.Progress_Seconds)
+	results := scan.Scan_hosts(hosts, cfg)
 	color.Set(color.FgGreen)
 	log.Println("scanning hosts finished")
 	color.Unset()

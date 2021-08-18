@@ -6,12 +6,13 @@ import (
 	"time"
 
 	. "github.com/echox/servicedef/model"
+	"github.com/echox/servicedef/config"
 
 	"github.com/Ullaakut/nmap/v2"
 	"github.com/fatih/color"
 )
 
-func Scan_hosts(hosts []HostDef, progress_seconds int) []Host {
+func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
 	p := make(chan string, len(hosts))
 	result_queue := make(chan Host, 10)
@@ -37,7 +38,7 @@ func Scan_hosts(hosts []HostDef, progress_seconds int) []Host {
 
 	for i := 1; i <= 3; i++ {
 		wg.Add(1)
-		go scan_host_worker(i, p, &wg, m, result_queue, progress_seconds)
+		go scan_host_worker(i, p, &wg, m, result_queue, cfg)
 	}
 	wg.Wait()
 	close(result_queue)
@@ -49,20 +50,26 @@ func Scan_hosts(hosts []HostDef, progress_seconds int) []Host {
 
 }
 
-func scan_host(id int, host string, progress_seconds int) *nmap.Run {
+func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 
 	log.Printf("[worker_%v] scanning %v...", id, host)
 
-	s, err := nmap.NewScanner(
+	options := []nmap.Option{
 		nmap.WithTargets(host),
 		nmap.WithTimingTemplate(nmap.TimingAggressive),
 		nmap.WithServiceInfo(),
-		nmap.WithSYNScan(),
 		//nmap.WithPorts("-"),
 		nmap.WithVerbosity(3),
 		nmap.WithFastMode(),
-	)
+		}
 
+	if cfg.Connect_Scan {
+		options = append(options, nmap.WithConnectScan())
+	} else {
+		options = append(options, nmap.WithSYNScan())
+	}
+
+	s, err := nmap.NewScanner(options...)
 	if err != nil {
 		log.Fatalf("[worker_%v] unable to create nmap scanner: %v", id, err)
 	}
@@ -72,12 +79,12 @@ func scan_host(id int, host string, progress_seconds int) *nmap.Run {
 	var w []string
 	var e error
 
-	if progress_seconds > 0 {
+	if cfg.Progress_Seconds > 0 {
 	progress := make(chan float32, 1)
 	ts := time.Now()
 	go func() {
 		for p := range progress {
-			if time.Now().After(ts.Add(time.Duration(progress_seconds) * time.Second)) {
+			if time.Now().After(ts.Add(time.Duration(cfg.Progress_Seconds) * time.Second)) {
 				ts = time.Now()
 				log.Printf("[worker_%v] portscan progress: %v %%", id, p)
 			}
@@ -108,10 +115,10 @@ func scan_host(id int, host string, progress_seconds int) *nmap.Run {
 	return result
 }
 
-func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, m *sync.Mutex, result_queue chan Host, progress_seconds int) {
+func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, m *sync.Mutex, result_queue chan Host, cfg config.Config) {
 
 	for ip := range pool {
-		sr := scan_host(id, ip, progress_seconds)
+		sr := scan_host(id, ip, cfg)
 		parse_nmap(sr, result_queue)
 		m.Lock()
 		m.Unlock()

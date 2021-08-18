@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"flag"
@@ -12,14 +12,16 @@ type Config struct {
 	Services      bool
 	Graphviz      string
 	Progress_Seconds int
+	Connect_Scan  bool
 }
 
-func config() Config {
+func Init() Config {
 
 	var cfg Config
 
 	flag.StringVar(&cfg.Graphviz, "g", "", "graphviz dot file export")
 	flag.IntVar(&cfg.Progress_Seconds, "p", 60, "print nmap scanning progress every x seconds")
+	flag.BoolVar(&cfg.Connect_Scan, "c", false, "do a nmap connect scan (doesn't require root privileges)")
 	flag.Parse()
 
 	args := len(flag.Args())
