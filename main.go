@@ -7,11 +7,11 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/echox/servicedef/config"
 	"github.com/echox/servicedef/export"
 	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/scan"
 	"github.com/echox/servicedef/util"
-	"github.com/echox/servicedef/config"
 
 	"github.com/fatih/color"
 )

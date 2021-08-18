@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/config"
+	. "github.com/echox/servicedef/model"
 
 	"github.com/Ullaakut/nmap/v2"
 	"github.com/fatih/color"
@@ -61,7 +61,7 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 		//nmap.WithPorts("-"),
 		nmap.WithVerbosity(3),
 		nmap.WithFastMode(),
-		}
+	}
 
 	if cfg.Connect_Scan {
 		options = append(options, nmap.WithConnectScan())
@@ -74,24 +74,23 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 		log.Fatalf("[worker_%v] unable to create nmap scanner: %v", id, err)
 	}
 
-
 	var result *nmap.Run
 	var w []string
 	var e error
 
 	if cfg.Progress_Seconds > 0 {
-	progress := make(chan float32, 1)
-	ts := time.Now()
-	go func() {
-		for p := range progress {
-			if time.Now().After(ts.Add(time.Duration(cfg.Progress_Seconds) * time.Second)) {
-				ts = time.Now()
-				log.Printf("[worker_%v] portscan progress: %v %%", id, p)
+		progress := make(chan float32, 1)
+		ts := time.Now()
+		go func() {
+			for p := range progress {
+				if time.Now().After(ts.Add(time.Duration(cfg.Progress_Seconds) * time.Second)) {
+					ts = time.Now()
+					log.Printf("[worker_%v] portscan progress: %v %%", id, p)
+				}
 			}
-		}
-	}()
+		}()
 
-	result, w, e = s.RunWithProgress(progress)
+		result, w, e = s.RunWithProgress(progress)
 	} else {
 		result, w, e = s.Run()
 	}

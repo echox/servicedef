@@ -7,12 +7,12 @@ import (
 )
 
 type Config struct {
-	Hosts_File    *os.File
-	Services_File *os.File
-	Services      bool
-	Graphviz      string
+	Hosts_File       *os.File
+	Services_File    *os.File
+	Services         bool
+	Graphviz         string
 	Progress_Seconds int
-	Connect_Scan  bool
+	Connect_Scan     bool
 }
 
 func Init() Config {
