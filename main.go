@@ -1,15 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
-	"os"
-	"encoding/json"
 
-	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/export"
+	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/scan"
 	"github.com/echox/servicedef/util"
 
@@ -19,25 +18,24 @@ import (
 func main() {
 	log.Println("servicedef v0")
 
-	log.Println("parsing services file...")
-	sjson, sjson_err := os.Open("services.json")
-	if sjson_err != nil {
-		panic(sjson_err)
+	cfg := config()
+
+	var services []ServiceDef
+	if cfg.Services {
+		log.Println("parsing services file...")
+		services = parse_services(cfg.Services_File)
+		log.Printf("Services #: %v", len(services))
+		for _, s := range services {
+			print_service(s)
+		}
+		log.Println("parsing services file finished")
+	} else {
+		log.Println("no service definitions - scanning only")
 	}
-	services := parse_services(sjson)
-	log.Printf("Services #: %v", len(services))
-	for _, s := range services {
-		print_service(s)
-	}
-	log.Println("parsing services file finished")
 
 	log.Println("parsing hosts file...")
 
-	hjson, hjson_err := os.Open("hosts.json")
-	if sjson_err != nil {
-		panic(hjson_err)
-	}
-	hosts := parse_hosts(hjson)
+	hosts := parse_hosts(cfg.Hosts_File)
 	color.Set(color.FgYellow)
 	for _, h := range hosts {
 		log.Printf("Host: %v %v", h.Ip, h.Name)
@@ -54,11 +52,13 @@ func main() {
 	log.Println("scanning hosts finished")
 	color.Unset()
 
-	log.Println("checking services...")
-	check_services(results, services)
-	color.Set(color.FgGreen)
-	log.Println("finished checking services")
-	color.Unset()
+	if cfg.Services {
+		log.Println("checking services...")
+		check_services(results, services)
+		color.Set(color.FgGreen)
+		log.Println("finished checking services")
+		color.Unset()
+	}
 
 	log.Println("writing graphviz dot file...")
 	export.Write_graphviz(results, services)
