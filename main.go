@@ -60,9 +60,11 @@ func main() {
 		color.Unset()
 	}
 
-	log.Println("writing graphviz dot file...")
-	export.Write_graphviz(results, services)
-	log.Println("finished writing graphviz dot file")
+	if cfg.Graphviz != "" {
+		log.Println("writing graphviz dot file...")
+		export.Write_graphviz(results, services, cfg.Graphviz)
+		log.Println("finished writing graphviz dot file")
+	}
 
 	log.Println("finished")
 }

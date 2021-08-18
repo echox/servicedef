@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func Write_graphviz(hosts []Host, services []ServiceDef) {
+func Write_graphviz(hosts []Host, services []ServiceDef, file string) {
 
 	g := dot.NewGraph(dot.Directed)
 	internet := g.Node("internet")
@@ -47,7 +47,7 @@ func Write_graphviz(hosts []Host, services []ServiceDef) {
 	}
 
 	b := []byte(g.String())
-	fwerr := ioutil.WriteFile("graph.dot", b, 0644)
+	fwerr := ioutil.WriteFile(file, b, 0644)
 	if fwerr != nil {
 		log.Println(fwerr)
 	}
