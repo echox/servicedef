@@ -7,12 +7,13 @@ import (
 )
 
 type Config struct {
-	Hosts_File       *os.File
-	Services_File    *os.File
-	Services         bool
-	Graphviz         string
-	Progress_Seconds int
-	Connect_Scan     bool
+	Hosts_File        *os.File
+	Services_File     *os.File
+	Services          bool
+	Graphviz          string
+	Progress_Seconds  int
+	Connect_Scan      bool
+	Default_Port_Scan bool
 }
 
 func Init() Config {
@@ -22,6 +23,7 @@ func Init() Config {
 	flag.StringVar(&cfg.Graphviz, "g", "", "graphviz dot file export")
 	flag.IntVar(&cfg.Progress_Seconds, "p", 60, "print nmap scanning progress every x seconds")
 	flag.BoolVar(&cfg.Connect_Scan, "c", false, "do a nmap connect scan (doesn't require root privileges)")
+	flag.BoolVar(&cfg.Default_Port_Scan, "f", false, "scan only nmap default ports instead of all (faster)")
 	flag.Parse()
 
 	args := len(flag.Args())

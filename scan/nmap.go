@@ -58,15 +58,17 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 		nmap.WithTargets(host),
 		nmap.WithTimingTemplate(nmap.TimingAggressive),
 		nmap.WithServiceInfo(),
-		//nmap.WithPorts("-"),
 		nmap.WithVerbosity(3),
-		nmap.WithFastMode(),
 	}
 
 	if cfg.Connect_Scan {
 		options = append(options, nmap.WithConnectScan())
 	} else {
 		options = append(options, nmap.WithSYNScan())
+	}
+
+	if !cfg.Default_Port_Scan {
+		options = append(options, nmap.WithPorts("-"))
 	}
 
 	s, err := nmap.NewScanner(options...)
