@@ -47,7 +47,7 @@ func main() {
 	color.Set(color.FgGreen)
 	log.Println("portscanning hosts, this might take a really long time...")
 	color.Unset()
-	results := scan.Scan_hosts(hosts)
+	results := scan.Scan_hosts(hosts, cfg.Progress_Seconds)
 	color.Set(color.FgGreen)
 	log.Println("scanning hosts finished")
 	color.Unset()

@@ -11,7 +11,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func Scan_hosts(hosts []HostDef) []Host {
+func Scan_hosts(hosts []HostDef, progress_seconds int) []Host {
 
 	p := make(chan string, len(hosts))
 	result_queue := make(chan Host, 10)
@@ -37,7 +37,7 @@ func Scan_hosts(hosts []HostDef) []Host {
 
 	for i := 1; i <= 3; i++ {
 		wg.Add(1)
-		go scan_host_worker(i, p, &wg, m, result_queue)
+		go scan_host_worker(i, p, &wg, m, result_queue, progress_seconds)
 	}
 	wg.Wait()
 	close(result_queue)
@@ -49,7 +49,7 @@ func Scan_hosts(hosts []HostDef) []Host {
 
 }
 
-func scan_host(id int, host string) *nmap.Run {
+func scan_host(id int, host string, progress_seconds int) *nmap.Run {
 
 	log.Printf("[worker_%v] scanning %v...", id, host)
 
@@ -67,20 +67,28 @@ func scan_host(id int, host string) *nmap.Run {
 		log.Fatalf("[worker_%v] unable to create nmap scanner: %v", id, err)
 	}
 
+
+	var result *nmap.Run
+	var w []string
+	var e error
+
+	if progress_seconds > 0 {
 	progress := make(chan float32, 1)
-
 	ts := time.Now()
-
 	go func() {
 		for p := range progress {
-			if time.Now().After(ts.Add(60 * time.Second)) {
+			if time.Now().After(ts.Add(time.Duration(progress_seconds) * time.Second)) {
 				ts = time.Now()
 				log.Printf("[worker_%v] portscan progress: %v %%", id, p)
 			}
 		}
 	}()
 
-	result, w, e := s.RunWithProgress(progress)
+	result, w, e = s.RunWithProgress(progress)
+	} else {
+		result, w, e = s.Run()
+	}
+
 	if e != nil {
 		color.Set(color.FgRed)
 		log.Fatalf("[worker_%v]unable to run nmap scan: %v", id, e)
@@ -100,10 +108,10 @@ func scan_host(id int, host string) *nmap.Run {
 	return result
 }
 
-func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, m *sync.Mutex, result_queue chan Host) {
+func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, m *sync.Mutex, result_queue chan Host, progress_seconds int) {
 
 	for ip := range pool {
-		sr := scan_host(id, ip)
+		sr := scan_host(id, ip, progress_seconds)
 		parse_nmap(sr, result_queue)
 		m.Lock()
 		m.Unlock()

@@ -11,6 +11,7 @@ type Config struct {
 	Services_File *os.File
 	Services      bool
 	Graphviz      string
+	Progress_Seconds int
 }
 
 func config() Config {
@@ -18,6 +19,7 @@ func config() Config {
 	var cfg Config
 
 	flag.StringVar(&cfg.Graphviz, "g", "", "graphviz dot file export")
+	flag.IntVar(&cfg.Progress_Seconds, "p", 60, "print nmap scanning progress every x seconds")
 	flag.Parse()
 
 	args := len(flag.Args())

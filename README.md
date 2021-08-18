@@ -88,7 +88,7 @@ If you run into the following error check privileges:
 
 | Switch | Default | Description |
 | --- | --- | --- |
-| -p | false | print nmap progress in logfile every 60 seconds
+| -p | -p 60 | print nmap progress, set 0 to disable |
 | -q | false | don't print to stdout |
 | -l logfile | -l scan.log | write logs to logfile |
 | -g graphviz.dot | false | export results as graphviz dotfile |
