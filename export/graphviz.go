@@ -19,6 +19,10 @@ func Write_graphviz(hosts []Host, services []ServiceDef, file string) {
 
 	for _, h := range hosts {
 
+		if len(h.Ports) == 0 {
+			continue
+		}
+
 		host_lbl := fmt.Sprintf("%v\n%v", h.Ip, h.Dns)
 		host_node := g.Node(host_lbl)
 		g.Edge(internet, host_node)
