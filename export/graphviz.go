@@ -2,8 +2,8 @@ package export
 
 import (
 	"fmt"
-	"log"
 	"io/ioutil"
+	"log"
 
 	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/util"
