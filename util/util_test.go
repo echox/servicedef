@@ -54,16 +54,16 @@ func TestFind_host(t *testing.T) {
 func build_servicedefs() []ServiceDef {
 
 	return []ServiceDef{
-		ServiceDef{Id:"HTTP Service", Description:"http service test description",
-			Ports:[]PortDef{
+		ServiceDef{Id: "HTTP Service", Description: "http service test description",
+			Ports: []PortDef{
 				PortDef{Port: 80,
 					Hosts: []string{"172.16.1.1", "172.16.1.2"},
 				},
 			}},
-		ServiceDef{Id:"SSH", Description:"ssh test description",
-			Ports:[]PortDef{
+		ServiceDef{Id: "SSH", Description: "ssh test description",
+			Ports: []PortDef{
 				PortDef{Port: 22,
-					Hosts: []string{"172.16.1.1",},
+					Hosts: []string{"172.16.1.1"},
 				},
 			}},
 	}
@@ -76,11 +76,11 @@ func TestFind_service(t *testing.T) {
 	//matching port and ip
 	if s, err := Find_service(80, "172.16.1.1", services); err == nil {
 		if s.Id != "HTTP Service" {
-			t.Errorf("Couldn't find service for %v, %v got %v",80,"172.16.1.1",s.Id)
+			t.Errorf("Couldn't find service for %v, %v got %v", 80, "172.16.1.1", s.Id)
 		}
 
 	} else {
-		t.Errorf("Couldn't find service for %v, %v %v",80,"172.16.1.1", err)
+		t.Errorf("Couldn't find service for %v, %v %v", 80, "172.16.1.1", err)
 	}
 
 	//matching host only
@@ -92,7 +92,6 @@ func TestFind_service(t *testing.T) {
 	if s, err := Find_service(80, "172.16.1.0", services); err == nil {
 		t.Errorf("Shouldn't find service but got %v", s)
 	}
-
 
 	//zero port, empty ip
 	if s, err := Find_service(0, "", services); err == nil {

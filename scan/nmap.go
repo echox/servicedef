@@ -152,6 +152,8 @@ func parse_nmap_host(h nmap.Host) Host {
 			parsed_port.State = p.State.State
 			parsed_port.Version = p.Service.Version
 			parsed_port.Name = p.Service.Name
+			//TODO refactor to constructor
+			parsed_port.Rule_Results = make(map[string]bool)
 
 			parsed_host.Ports = append(parsed_host.Ports, parsed_port)
 		}

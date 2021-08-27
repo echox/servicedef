@@ -43,19 +43,36 @@ func Write_graphviz(hosts []Host, services []ServiceDef, hosts_def []HostDef, fi
 		for _, p := range h.Ports {
 			if p.State == "open" {
 
+				service_node := g.Node(uuid.NewString())
 				s, err := util.Find_service(p.Number, h.Ip, services)
 				if err == nil {
 					lbl := fmt.Sprintf("Port %v\n%v", p.Number, s.Id)
-					service_node := g.Node(uuid.NewString()).Attr("label", lbl)
-					g.Edge(host_node, service_node)
-
+					service_node = service_node.Attr("label", lbl)
 				} else {
 					lbl := fmt.Sprintf("Port %v\n(%v) %v", p.Number, p.Name, p.Version)
-					service_node := g.Node(uuid.NewString()).
-						Attr("style", "filled").
+					service_node = service_node.Attr("style", "filled").
 						Attr("color", "red").
 						Attr("label", lbl)
-					g.Edge(host_node, service_node)
+				}
+				g.Edge(host_node, service_node)
+
+				for r, v := range p.Rule_Results {
+
+					lbl := r + ": "
+					rule_node := g.Node(uuid.NewString()).Attr("shape", "hexagon")
+
+					if v {
+						lbl = lbl + "ok"
+						rule_node.Attr("style", "filled").
+							Attr("color", "green")
+					} else {
+						lbl = lbl + "failed"
+						rule_node.Attr("style", "filled").
+							Attr("color", "red")
+
+					}
+					rule_node.Attr("label", lbl)
+					g.Edge(service_node, rule_node)
 				}
 
 			}

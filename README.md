@@ -69,6 +69,62 @@ Results can also be exported as graphviz dot file:
 
 ![Tree view of scan results](doc/example.png)
 
+### Service Rules
+
+Service rules can be used to add additional checks to your service catalog.
+Currently the available rule checker is "http" for status codes and http headers:
+```
+[{
+	"id":"Load Balancer",
+	"description":"main httpd",
+	"ports":[
+		{
+		"port":80,
+		"hosts":["172.16.10.10","172.16.10.11"],
+		"rules":["https-redirect"],
+		"uri":"http://example-service.tld"
+		},{
+		"port":8080,
+		"hosts":["172.16.10.10","172.16.10.11"],
+		"rules":["basic_auth"],
+		"uri":"https://example-service.tld:8080"
+		},{
+		"port":443,
+		"hosts":["172.16.10.10","172.16.10.11"],
+		"rules":["OIDC_auth"]
+		"uri":"https://example-service.tld"
+		}
+	]
+},{
+// ...
+```
+`"uri"` is used for the probing, which might produce false results if you use techniques like dns round robin load balancing.
+
+To check the rules use `-r rules.json` and define them:
+```
+[{
+"name":"https-redirect",
+"type":"http",
+"status":302,
+"rules":[{"location":"https://example-service.tld", "contains":"Basic realm="}]
+},{
+"name":"basic_auth",
+"type":"http",
+"status":401,
+"rules":[{"name":"WWW-Authenticate", "contains":"Basic realm="}]
+},{
+"name":"OIDC_auth",
+"type":"http",
+"status":302,
+"rules":[{"name":"location", "contains":"https://idp.example-service.tld"}]
+}]
+```
+
+Rule mismatches will be reported during service evaluation and are part of the graphviz export:
+
+![scan results with rules check](doc/example-rules.png)
+
+
 ## Requirements
 
 Servicedef uses nmap for host discovery and portscanning.
@@ -89,6 +145,7 @@ If you run into the following error check privileges:
 
 | Switch | Default | Description |
 | --- | --- | --- |
+| -r | rules.json | use rules file |
 | -p | 60 | print nmap progress, set 0 to disable |
 | -q | false | don't print to stdout |
 | -l logfile | scan.log | write logs to logfile |
