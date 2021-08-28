@@ -24,7 +24,12 @@ func main() {
 	var services []ServiceDef
 	if cfg.Services {
 		log.Println("parsing services file...")
-		services = parse_services(cfg.Services_File)
+		var json_error error
+		services, json_error = parse_services(cfg.Services_File)
+		if json_error != nil {
+			log.Printf("parsing services error: %v", json_error)
+			return
+		}
 		log.Printf("Services #: %v", len(services))
 		for _, s := range services {
 			print_service(s)
@@ -36,7 +41,12 @@ func main() {
 
 	log.Println("parsing hosts file...")
 
-	hosts := parse_hosts(cfg.Hosts_File)
+	var json_error error
+	hosts, json_error := parse_hosts(cfg.Hosts_File)
+	if json_error != nil {
+		log.Printf("parsing hosts error: %v", json_error)
+		return
+	}
 	color.Set(color.FgYellow)
 	for _, h := range hosts {
 		log.Printf("Host: %v %v", h.Address, h.Description)
@@ -102,12 +112,17 @@ func check_services(results []Host, services []ServiceDef) {
 	}
 }
 
-func parse_hosts(jsonFile io.Reader) []HostDef {
+func parse_hosts(jsonFile io.Reader) ([]HostDef, error) {
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var hosts []HostDef
-	json.Unmarshal(byteValue, &hosts)
-	return hosts
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return hosts, err
+	}
+	if json_error := json.Unmarshal(byteValue, &hosts); json_error != nil {
+		return hosts, json_error
+	}
+	return hosts, nil
 }
 
 func print_service(service ServiceDef) {
@@ -120,10 +135,15 @@ func print_service(service ServiceDef) {
 	log.Printf("Service: %v %v - %v", service.Id, ports, service.Description)
 }
 
-func parse_services(jsonFile io.Reader) []ServiceDef {
+func parse_services(jsonFile io.Reader) ([]ServiceDef, error) {
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var services []ServiceDef
-	json.Unmarshal(byteValue, &services)
-	return services
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return services, err
+	}
+	if json_error := json.Unmarshal(byteValue, &services); json_error != nil {
+		return services, json_error
+	}
+	return services, nil
 }
