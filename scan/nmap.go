@@ -36,7 +36,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 	var wg sync.WaitGroup
 	m := &sync.Mutex{}
 
-	for i := 1; i <= 3; i++ {
+	for i := 1; i <= cfg.Threads; i++ {
 		wg.Add(1)
 		go scan_host_worker(i, p, &wg, m, result_queue, cfg)
 	}
