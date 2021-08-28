@@ -14,7 +14,7 @@ type Config struct {
 	Progress_Seconds  int
 	Connect_Scan      bool
 	Default_Port_Scan bool
-	Threads		  int
+	Threads           int
 }
 
 func Init() Config {
