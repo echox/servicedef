@@ -39,7 +39,7 @@ func main() {
 	hosts := parse_hosts(cfg.Hosts_File)
 	color.Set(color.FgYellow)
 	for _, h := range hosts {
-		log.Printf("Host: %v %v", h.Ip, h.Name)
+		log.Printf("Host: %v %v", h.Address, h.Description)
 	}
 	color.Unset()
 

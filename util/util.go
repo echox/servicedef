@@ -32,10 +32,10 @@ func Find_host(host string, hosts []model.HostDef) (model.HostDef, error) {
 
 		for _, h := range hosts {
 
-			if h.Ip == host {
+			if h.Address == host {
 				return h, nil
 			} else {
-				if _, cidr, cidr_err := net.ParseCIDR(h.Ip); cidr_err == nil {
+				if _, cidr, cidr_err := net.ParseCIDR(h.Address); cidr_err == nil {
 					if cidr != nil && cidr.Contains(ip) {
 						return h, nil
 					}

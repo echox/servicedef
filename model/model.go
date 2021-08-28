@@ -27,8 +27,8 @@ type Auth_service struct {
 }
 
 type HostDef struct {
-	Ip   string `json:"ip"`
-	Name string `json:"name"`
+	Address     string `json:"address"`
+	Description string `json:"description"`
 }
 
 type Host struct {

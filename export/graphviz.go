@@ -16,8 +16,8 @@ func add_host_description(host_label string, host Host, definitions []HostDef) s
 
 	if host_def, err := util.Find_host(host.Ip, definitions); err == nil {
 
-		if host_def.Name != "" {
-			return fmt.Sprintf("%v\n%v", host_label, host_def.Name)
+		if host_def.Description != "" {
+			return fmt.Sprintf("%v\n%v", host_label, host_def.Description)
 		}
 	}
 

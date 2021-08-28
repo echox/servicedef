@@ -36,8 +36,8 @@ Hosts are also stored in a flat JSON structure.
 hosts.json:
 ```
 [{
-"ip":"172.16.10.0/24",
-"name":"datacenter"
+"address":"172.16.10.0/24",
+"description":"datacenter"
 }]
 ```
 

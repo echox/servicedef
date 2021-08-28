@@ -20,7 +20,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 	var result_hosts []Host
 
 	for _, h := range hosts {
-		p <- h.Ip
+		p <- h.Address
 	}
 	close(p)
 
