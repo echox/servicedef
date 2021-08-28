@@ -1,9 +1,9 @@
 package util
 
 import (
-	"github.com/echox/servicedef/model"
-
 	"errors"
+	"github.com/echox/servicedef/model"
+	"net"
 )
 
 func Find_service(port int, host string, services []model.ServiceDef) (model.ServiceDef, error) {
@@ -22,4 +22,30 @@ func Find_service(port int, host string, services []model.ServiceDef) (model.Ser
 	}
 
 	return r, errors.New("NOT_FOUND")
+}
+
+func Find_host(host string, hosts []model.HostDef) (model.HostDef, error) {
+
+	var h model.HostDef
+
+	if ip := net.ParseIP(host); ip != nil {
+
+		for _, h := range hosts {
+
+			if h.Ip == host {
+				return h, nil
+			} else {
+				if _, cidr, cidr_err := net.ParseCIDR(h.Ip); cidr_err != nil {
+					if cidr != nil && cidr.Contains(ip) {
+						return h, nil
+					}
+				}
+			}
+		}
+
+	} else {
+		return h, errors.New("NO_IP")
+	}
+
+	return h, errors.New("NOT_FOUND")
 }

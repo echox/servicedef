@@ -12,7 +12,19 @@ import (
 	"github.com/google/uuid"
 )
 
-func Write_graphviz(hosts []Host, services []ServiceDef, file string) {
+func add_host_description(host_label string, host Host, definitions []HostDef) string {
+
+	if host_def, err := util.Find_host(host.Ip, definitions); err == nil {
+
+		if host_def.Name != "" {
+			return fmt.Sprintf("%v\n%v", host_label, host_def.Name)
+		}
+	}
+
+	return host_label
+}
+
+func Write_graphviz(hosts []Host, services []ServiceDef, hosts_def []HostDef, file string) {
 
 	g := dot.NewGraph(dot.Directed)
 	internet := g.Node("internet")
@@ -23,7 +35,8 @@ func Write_graphviz(hosts []Host, services []ServiceDef, file string) {
 			continue
 		}
 
-		host_lbl := fmt.Sprintf("%v\n%v", h.Ip, h.Dns)
+		host_lbl := fmt.Sprintf("%v\nPTR:%v", h.Ip, h.Dns)
+		host_lbl = add_host_description(host_lbl, h, hosts_def)
 		host_node := g.Node(host_lbl)
 		g.Edge(internet, host_node)
 

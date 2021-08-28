@@ -63,7 +63,7 @@ func main() {
 
 	if cfg.Graphviz != "" {
 		log.Println("writing graphviz dot file...")
-		export.Write_graphviz(results, services, cfg.Graphviz)
+		export.Write_graphviz(results, services, hosts, cfg.Graphviz)
 		log.Println("finished writing graphviz dot file")
 	}
 
