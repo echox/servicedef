@@ -28,6 +28,7 @@ func Find_host(host string, hosts []model.HostDef) (model.HostDef, error) {
 
 	var h model.HostDef
 
+	//TODO refactor to allow hostnames
 	if ip := net.ParseIP(host); ip != nil {
 
 		for _, h := range hosts {
