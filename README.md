@@ -91,12 +91,11 @@ Currently the available rule checker is "http" for status codes and http headers
 		},{
 		"port":443,
 		"hosts":["172.16.10.10","172.16.10.11"],
-		"rules":["OIDC_auth"]
+		"rules":["OIDC_auth"],
 		"uri":"https://example-service.tld"
 		}
 	]
-},{
-// ...
+}]
 ```
 `"uri"` is used for the probing, which might produce false results if you use techniques like dns round robin load balancing.
 
