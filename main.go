@@ -20,9 +20,14 @@ import (
 )
 
 func main() {
-	log.Println("servicedef v0")
+	log.Println("running servicedef v0")
 
 	cfg := config.Init()
+
+	if cfg.Quiet {
+		log.SetOutput(ioutil.Discard)
+	}
+
 	rules := loadRules(cfg)
 
 	var services []ServiceDef

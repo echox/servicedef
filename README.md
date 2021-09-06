@@ -8,7 +8,7 @@ Servicedef lets you compare a list of service definitions against a list of host
 
 Servicedefinitions are a JSON structure and can be created manually or could be generated from existing documentation.
 services.json:
-```
+```json
 [{
 	"id":"Load Balancer",
 	"description":"main httpd",
@@ -34,7 +34,7 @@ services.json:
 
 Hosts are also stored in a flat JSON structure.
 hosts.json:
-```
+```json
 [{
 "address":"172.16.10.0/24",
 "description":"datacenter"
@@ -73,7 +73,7 @@ Results can also be exported as graphviz dot file:
 
 Service rules can be used to add additional checks to your service catalog.
 Currently the available rule checker is "http" for status codes and http headers:
-```
+```json
 [{
 	"id":"Load Balancer",
 	"description":"main httpd",
@@ -101,7 +101,7 @@ Currently the available rule checker is "http" for status codes and http headers
 `"uri"` is used for the probing, which might produce false results if you use techniques like dns round robin load balancing.
 
 To check the rules use `-r rules.json` and define them:
-```
+```json
 [{
 "name":"https-redirect",
 "type":"http",
@@ -147,7 +147,7 @@ If you run into the following error check privileges:
 | --- | --- | --- |
 | -r | rules.json | use rules file |
 | -p | 60 | print nmap progress, set 0 to disable |
-| -q | false | don't print to stdout |
+| -q | false | quiet, don't print application logs to stdout |
 | -l logfile | scan.log | write logs to logfile |
 | -g graphviz.dot | false | export results as graphviz dotfile |
 | -t | 3 | number of parallel nmap scanning instances |
