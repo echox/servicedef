@@ -126,7 +126,7 @@ func check_services(results []Host, services []ServiceDef, rules []RulesDef) {
 						s.Description)
 
 					for _, pDef := range s.Ports {
-						if len(pDef.Rules) != 0 {
+						if len(pDef.Rules) != 0 && pDef.Port == p.Number {
 							check_rules(rules, pDef, &p, s, h.Ip)
 						}
 					}
