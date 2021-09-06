@@ -31,7 +31,7 @@ type RulesDef struct {
 
 type RuleDef struct {
 	Name     string `json:"name"`
-	Contains string `json:"value"`
+	Contains string `json:"contains"`
 }
 
 type Host struct {

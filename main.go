@@ -171,7 +171,12 @@ func eval_http(rules RulesDef, uri string) bool {
 		return false
 	}
 
-	r, err := http.Get(uri)
+	hc := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	r, err := hc.Get(uri)
 	if err != nil {
 		log.Println(err)
 		return false
