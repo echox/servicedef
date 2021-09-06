@@ -104,7 +104,7 @@ To check the rules use `-r rules.json` and define them:
 [{
 "name":"https-redirect",
 "type":"http",
-"status":302,
+"status":301,
 "rules":[{"location":"https://example-service.tld", "contains":"Basic realm="}]
 },{
 "name":"basic_auth",
