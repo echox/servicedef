@@ -17,7 +17,7 @@ type Config struct {
 	Connect_Scan      bool
 	Default_Port_Scan bool
 	Threads           int
-	Quiet		  bool
+	Quiet             bool
 }
 
 func Init() Config {
