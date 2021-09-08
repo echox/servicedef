@@ -156,3 +156,15 @@ If you run into the following error check privileges:
 
 ## Graphviz Export
 ```cat graph.dot | dot -Grankdir=LR -Tpdf > graph.pdf && open graph.pdf```
+
+## Dockerfile
+
+The `docker build -t servicedef .' command builds the application and runs with golang-alpine.
+
+It might be not advised to run inside a container given the docker network stack.
+
+`hosts.json`, `services.json` and `rules.json` can be mounted to `/opt/servicedef` inside the container and referenced during start, for example:
+
+```
+$ docker run -v ~/hosts.json:/opt/servicedef/hosts.json servicedef -f -g export.dot hosts.json
+```
