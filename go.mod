@@ -7,4 +7,5 @@ require (
 	github.com/emicklei/dot v0.16.0
 	github.com/fatih/color v1.12.0
 	github.com/google/uuid v1.3.0
+	github.com/stretchr/testify v1.7.0 // indirect
 )
