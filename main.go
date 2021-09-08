@@ -28,7 +28,12 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	rules := loadRules(cfg)
+	var rules []RulesDef
+	if cfg.Rules == "" {
+		log.Println("no rules supplied, use (-r) if needed")
+	} else {
+		rules = loadRules(cfg)
+	}
 
 	var services []ServiceDef
 	if cfg.Services {
