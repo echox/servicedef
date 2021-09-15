@@ -44,7 +44,7 @@ func Write_graphviz(hosts []Host, services []ServiceDef, hosts_def []HostDef, fi
 			if p.State == "open" {
 
 				service_node := g.Node(uuid.NewString())
-				s, err := util.Find_service(p.Number, h.Ip, services)
+				s, err := util.Find_service(p.Number, h, services)
 				if err == nil {
 					lbl := fmt.Sprintf("Port %v\n%v", p.Number, s.Id)
 					service_node = service_node.Attr("label", lbl)

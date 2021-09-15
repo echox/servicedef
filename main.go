@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -122,7 +121,7 @@ func check_services(results []Host, services []ServiceDef, rules []RulesDef) {
 
 		for _, p := range h.Ports {
 			if p.State == "open" {
-				s, err := util.Find_service(p.Number, fmt.Sprintf("%s", h.Ip), services)
+				s, err := util.Find_service(p.Number, h, services)
 				if err == nil {
 					log.Printf("[%v] %v - %v (%v)",
 						h.Ip,

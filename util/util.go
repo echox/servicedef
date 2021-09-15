@@ -6,14 +6,14 @@ import (
 	"net"
 )
 
-func Find_service(port int, host string, services []model.ServiceDef) (model.ServiceDef, error) {
+func Find_service(port int, host model.Host, services []model.ServiceDef) (model.ServiceDef, error) {
 
 	var r model.ServiceDef
 	for _, s := range services {
 		for _, p := range s.Ports {
 			if p.Port == port {
 				for _, h := range p.Hosts {
-					if host == h {
+					if h == host.Dns || h == host.Ip {
 						return s, nil
 					}
 				}
