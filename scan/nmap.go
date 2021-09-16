@@ -34,11 +34,10 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 	}()
 
 	var wg sync.WaitGroup
-	m := &sync.Mutex{}
 
 	for i := 1; i <= cfg.Threads; i++ {
 		wg.Add(1)
-		go scan_host_worker(i, p, &wg, m, result_queue, cfg)
+		go scan_host_worker(i, p, &wg, result_queue, cfg)
 	}
 	wg.Wait()
 	close(result_queue)
@@ -50,7 +49,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
 }
 
-func scan_host(id int, host string, cfg config.Config) *nmap.Run {
+func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
 
 	log.Printf("[worker_%v] scanning %v...", id, host)
 
@@ -73,7 +72,8 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 
 	s, err := nmap.NewScanner(options...)
 	if err != nil {
-		log.Fatalf("[worker_%v] unable to create nmap scanner: %v", id, err)
+		log.Printf("[worker_%v] unable to create nmap scanner: %v", id, err)
+		return nil, err
 	}
 
 	var result *nmap.Run
@@ -99,8 +99,9 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 
 	if e != nil {
 		color.Set(color.FgRed)
-		log.Fatalf("[worker_%v]unable to run nmap scan: %v", id, e)
+		log.Printf("[worker_%v]unable to run nmap scan: %v", id, e)
 		color.Unset()
+		return nil, e
 	}
 
 	if w != nil {
@@ -113,16 +114,15 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 	log.Printf("[worker_%v] [%v] nmap done: %d hosts up scanned in %3f seconds\n", id, host, len(result.Hosts), result.Stats.Finished.Elapsed)
 	color.Unset()
 
-	return result
+	return result, nil
 }
 
-func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, m *sync.Mutex, result_queue chan Host, cfg config.Config) {
+func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
 
 	for ip := range pool {
-		sr := scan_host(id, ip, cfg)
-		parse_nmap(sr, result_queue)
-		m.Lock()
-		m.Unlock()
+		if sr, err := scan_host(id, ip, cfg); err == nil {
+			parse_nmap(sr, result_queue)
+		}
 	}
 
 	log.Printf("[worker_%v] finished queue", id)
