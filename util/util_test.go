@@ -57,7 +57,7 @@ func build_servicedefs() []ServiceDef {
 		ServiceDef{Id: "HTTP Service", Description: "http service test description",
 			Ports: []PortDef{
 				PortDef{Port: 80,
-					Hosts: []string{"172.16.1.1", "172.16.1.2","some.domain"},
+					Hosts: []string{"172.16.1.1", "172.16.1.2", "some.domain"},
 				},
 			}},
 		ServiceDef{Id: "SSH", Description: "ssh test description",
@@ -74,7 +74,7 @@ func TestFind_service(t *testing.T) {
 	services := build_servicedefs()
 
 	//matching port and ip
-	if s, err := Find_service(80, Host{Ip:"172.16.1.1"}, services); err == nil {
+	if s, err := Find_service(80, Host{Ip: "172.16.1.1"}, services); err == nil {
 		if s.Id != "HTTP Service" {
 			t.Errorf("Couldn't find service for %v, %v got %v", 80, "172.16.1.1", s.Id)
 		}
@@ -84,27 +84,27 @@ func TestFind_service(t *testing.T) {
 	}
 
 	//matching host only
-	if s, err := Find_service(81, Host{Ip:"172.16.1.1"}, services); err == nil {
+	if s, err := Find_service(81, Host{Ip: "172.16.1.1"}, services); err == nil {
 		t.Errorf("Shouldn't find service but got %v", s)
 	}
 
 	//matching port only
-	if s, err := Find_service(80, Host{Ip:"172.16.1.0"}, services); err == nil {
+	if s, err := Find_service(80, Host{Ip: "172.16.1.0"}, services); err == nil {
 		t.Errorf("Shouldn't find service but got %v", s)
 	}
 
 	//matching dns
-	if s, err := Find_service(80, Host{Dns:"some.domain"}, services); err != nil {
+	if s, err := Find_service(80, Host{Dns: "some.domain"}, services); err != nil {
 		t.Errorf("Should find service but got %v", s)
 	}
 
 	//not matching dns
-	if s, err := Find_service(80, Host{Dns:"some.unknown.domain"}, services); err == nil {
+	if s, err := Find_service(80, Host{Dns: "some.unknown.domain"}, services); err == nil {
 		t.Errorf("Shouldn't find service but got %v", s)
 	}
 
 	//zero port, empty ip
-	if s, err := Find_service(0, Host{Ip:""}, services); err == nil {
+	if s, err := Find_service(0, Host{Ip: ""}, services); err == nil {
 		t.Errorf("Shouldn't find service but got %v", s)
 	}
 

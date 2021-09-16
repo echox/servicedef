@@ -112,12 +112,12 @@ func loadRules(cfg config.Config) []RulesDef {
 }
 
 func contains(hosts []string, host Host) bool {
-    for _, h := range hosts {
-        if h == host.Ip || h == host.Dns {
-            return true
-        }
-    }
-    return false
+	for _, h := range hosts {
+		if h == host.Ip || h == host.Dns {
+			return true
+		}
+	}
+	return false
 }
 
 func check_services(results []Host, services []ServiceDef, rules []RulesDef) {
