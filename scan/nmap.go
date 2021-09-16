@@ -87,7 +87,7 @@ func scan_host(id int, host string, cfg config.Config) *nmap.Run {
 			for p := range progress {
 				if time.Now().After(ts.Add(time.Duration(cfg.Progress_Seconds) * time.Second)) {
 					ts = time.Now()
-					log.Printf("[worker_%v] portscan progress: %v %%", id, p)
+					log.Printf("[worker_%v] [%v] portscan progress: %v %%", id, host, p)
 				}
 			}
 		}()
