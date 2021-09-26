@@ -1,3 +1,10 @@
+// Package scan contains the scanning functionality of servicedef. It uses the
+// an array of host definitions HostDef created from the hosts.json file as
+// input.
+// Currently only scanning via nmap is supported and it is unlikely we will
+// ever support other methods. Servicedef is currently strongly coupled with
+// the nmap scanning mehtods and results.
+// At the moment nmap is utilized via the github.com/Ullaakut/nmap package.
 package scan
 
 import (
@@ -12,6 +19,9 @@ import (
 	"github.com/fatih/color"
 )
 
+// Scan_hosts evaluates a given list of host definitions
+// The configuration is needed for knowing if scanning progress should be
+// logged
 func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
 	p := make(chan HostDef, len(hosts))

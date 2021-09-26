@@ -1,3 +1,5 @@
+// Package config is responsible for parsing the command line arguments and
+// holding the configured state of the application.
 package config
 
 import (
@@ -6,20 +8,24 @@ import (
 	"os"
 )
 
+// Config state of the application
 type Config struct {
-	Hosts_File        *os.File
-	Services_File     *os.File
-	Rules_File        *os.File
-	Rules             string
-	Services          bool
-	Graphviz          string
-	Progress_Seconds  int
-	Connect_Scan      bool
-	Default_Port_Scan bool
-	Threads           int
-	Quiet             bool
+	Hosts_File        *os.File //Filehandle for the json hosts inventory, created during Init()
+	Services_File     *os.File //Filehandle for the json service catalogs, created during Init()
+	Rules_File        *os.File //Filehandle for the json rule file, created during Init()
+	Rules             string   //Relative filesystem path to the rules json file
+	Services          bool     //Relative filesystem path to the servies json file
+	Graphviz          string   //Relative filesystem path for the graphviz export file
+	Progress_Seconds  int      //Seconds after scanning progress gets logged to console
+	Connect_Scan      bool     //Should a TCP connect scan used during scanning
+	Default_Port_Scan bool     //Should only a small range of default ports be scanned
+	Threads           int      //Number of concurrent scanning threads
+	Quiet             bool     //Should the log be omitted
 }
 
+// Init is used to parse the command line parameters, open file handles and
+// return the state of the current configuration
+// It uses golangs "flag" package for parsing command line flags
 func Init() Config {
 
 	var cfg Config
