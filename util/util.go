@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/echox/servicedef/model"
 	"net"
+	"strings"
 )
 
 func Find_service(port int, host model.Host, services []model.ServiceDef) (model.ServiceDef, error) {
@@ -13,8 +14,18 @@ func Find_service(port int, host model.Host, services []model.ServiceDef) (model
 		for _, p := range s.Ports {
 			if p.Port == port {
 				for _, h := range p.Hosts {
-					if h == host.Dns || h == host.Ip {
-						return s, nil
+					if strings.HasPrefix(h, "tag:") {
+						v := strings.Split(h, "tag:")
+						for _, tag := range host.Tags {
+							if v[1] == tag {
+								return s, nil
+							}
+						}
+
+					} else {
+						if h == host.Dns || h == host.Ip {
+							return s, nil
+						}
 					}
 				}
 			}

@@ -14,13 +14,13 @@ import (
 
 func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
-	p := make(chan string, len(hosts))
+	p := make(chan HostDef, len(hosts))
 	result_queue := make(chan Host, 10)
 
 	var result_hosts []Host
 
 	for _, h := range hosts {
-		p <- h.Address
+		p <- h
 	}
 	close(p)
 
@@ -117,11 +117,15 @@ func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
 	return result, nil
 }
 
-func scan_host_worker(id int, pool chan string, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
+func scan_host_worker(id int, pool chan HostDef, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
 
-	for ip := range pool {
-		if sr, err := scan_host(id, ip, cfg); err == nil {
-			parse_nmap(sr, result_queue)
+	for hostDef := range pool {
+		if sr, err := scan_host(id, hostDef.Address, cfg); err == nil {
+			hosts := parse_nmap(sr)
+			for _, h := range hosts {
+				h.Tags = hostDef.Tags
+				result_queue <- h
+			}
 		}
 	}
 
@@ -163,7 +167,7 @@ func parse_nmap_host(h nmap.Host) Host {
 	return parsed_host
 }
 
-func parse_nmap(scan *nmap.Run, result_queue chan Host) []Host {
+func parse_nmap(scan *nmap.Run) []Host {
 
 	var hosts []Host
 
@@ -171,7 +175,7 @@ func parse_nmap(scan *nmap.Run, result_queue chan Host) []Host {
 
 		parsed_host := parse_nmap_host(h)
 		if parsed_host.Ip != "" {
-			result_queue <- parsed_host
+			hosts = append(hosts, parsed_host)
 		}
 
 		if len(h.Ports) == 0 || len(h.Addresses) == 0 {

@@ -18,8 +18,9 @@ type PortDef struct {
 }
 
 type HostDef struct {
-	Address     string `json:"address"`
-	Description string `json:"description"`
+	Address     string   `json:"address"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
 }
 
 type RulesDef struct {
@@ -38,6 +39,7 @@ type Host struct {
 	Ip    string
 	Dns   string
 	Ports []Port
+	Tags  []string
 }
 
 type IPort interface {
