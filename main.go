@@ -24,21 +24,27 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	var rules Rules
-	if cfg.Rules == "" {
-		log.Println("no rules supplied, use (-r) if needed")
-	} else {
-		if err := rules.Init(cfg); err != nil {
-			log.Printf("error loading rules: %v", err)
-		}
-	}
+	var (
+		hosts    HostDefs
+		services ServiceDefs
+		rules    Rules
+	)
 
-	var services ServiceDefs
+	log.Println("parsing hosts file...")
+	if json_error := hosts.Init(cfg.Hosts_File); json_error != nil {
+		log.Printf("parsing hosts error: %v", json_error)
+		return
+	}
+	color.Set(color.FgYellow)
+	for _, h := range hosts {
+		log.Printf("Host: %v %v", h.Address, h.Description)
+	}
+	color.Unset()
+	log.Println("parsing hosts file finished")
+
 	if cfg.Services {
 		log.Println("parsing services file...")
-		var json_error error
-		json_error = services.Init(cfg.Services_File)
-		if json_error != nil {
+		if json_error := services.Init(cfg.Services_File); json_error != nil {
 			log.Printf("parsing services error: %v", json_error)
 			return
 		}
@@ -51,21 +57,13 @@ func main() {
 		log.Println("no service definitions - scanning only")
 	}
 
-	log.Println("parsing hosts file...")
-
-	var hosts HostDefs
-	json_error := hosts.Init(cfg.Hosts_File)
-	if json_error != nil {
-		log.Printf("parsing hosts error: %v", json_error)
-		return
+	if cfg.Rules == "" {
+		log.Println("no rules supplied, use (-r) if needed")
+	} else {
+		if err := rules.Init(cfg); err != nil {
+			log.Printf("error loading rules: %v", err)
+		}
 	}
-	color.Set(color.FgYellow)
-	for _, h := range hosts {
-		log.Printf("Host: %v %v", h.Address, h.Description)
-	}
-	color.Unset()
-
-	log.Println("parsing hosts file finished")
 
 	color.Set(color.FgGreen)
 	log.Println("portscanning hosts, this might take a really long time...")
@@ -94,11 +92,13 @@ func main() {
 }
 
 func contains(hosts []string, host Host) bool {
+
 	for _, h := range hosts {
 		if h == host.Ip || h == host.Dns {
 			return true
 		}
 	}
+
 	return false
 }
 
