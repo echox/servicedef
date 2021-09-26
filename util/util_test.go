@@ -8,10 +8,10 @@ import (
 func build_hostdefs() []HostDef {
 
 	return []HostDef{
-		HostDef{"172.16.1.0/24", "test a"},
-		HostDef{"172.16.2.0/24", "test b"},
-		HostDef{"172.16.3.1", "test c"},
-		HostDef{"172.16.3.2", "test d"},
+		HostDef{"172.16.1.0/24", "test a", []string{}},
+		HostDef{"172.16.2.0/24", "test b", []string{}},
+		HostDef{"172.16.3.1", "test c", []string{}},
+		HostDef{"172.16.3.2", "test d", []string{}},
 	}
 }
 
