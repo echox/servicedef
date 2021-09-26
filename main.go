@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -25,11 +24,13 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	var rules []RulesDef
+	var rules Rules
 	if cfg.Rules == "" {
 		log.Println("no rules supplied, use (-r) if needed")
 	} else {
-		rules = loadRules(cfg)
+		if err := rules.Init(cfg); err != nil {
+			log.Printf("error loading rules: %v", err)
+		}
 	}
 
 	var services ServiceDefs
@@ -90,23 +91,6 @@ func main() {
 	}
 
 	log.Println("finished")
-}
-
-func loadRules(cfg config.Config) []RulesDef {
-
-	log.Printf("loading rule file %v", cfg.Rules)
-
-	var rules []RulesDef
-	byteValue, err := ioutil.ReadAll(cfg.Rules_File)
-	if err != nil {
-		log.Printf("error loading rules: %v", err)
-		return rules
-	}
-
-	json.Unmarshal(byteValue, &rules)
-	log.Printf("Rules #: %v", len(rules))
-
-	return rules
 }
 
 func contains(hosts []string, host Host) bool {
