@@ -6,15 +6,14 @@ import (
 	"log"
 
 	. "github.com/echox/servicedef/model"
-	"github.com/echox/servicedef/util"
 
 	"github.com/emicklei/dot"
 	"github.com/google/uuid"
 )
 
-func add_host_description(host_label string, host Host, definitions []HostDef) string {
+func add_host_description(host_label string, host Host, definitions HostDefs) string {
 
-	if host_def, err := util.Find_host(host.Ip, definitions); err == nil {
+	if host_def, err := definitions.Find(host.Ip); err == nil {
 
 		if host_def.Description != "" {
 			return fmt.Sprintf("%v\n%v", host_label, host_def.Description)
@@ -24,7 +23,7 @@ func add_host_description(host_label string, host Host, definitions []HostDef) s
 	return host_label
 }
 
-func Write_graphviz(hosts []Host, services []ServiceDef, hosts_def []HostDef, file string) {
+func Write_graphviz(hosts []Host, services ServiceDefs, hosts_def HostDefs, file string) {
 
 	g := dot.NewGraph(dot.Directed)
 	internet := g.Node("internet")
@@ -44,7 +43,7 @@ func Write_graphviz(hosts []Host, services []ServiceDef, hosts_def []HostDef, fi
 			if p.State == "open" {
 
 				service_node := g.Node(uuid.NewString())
-				s, err := util.Find_service(p.Number, h, services)
+				s, err := services.Find(p.Number, h)
 				if err == nil {
 					lbl := fmt.Sprintf("Port %v\n%v", p.Number, s.Id)
 					service_node = service_node.Attr("label", lbl)

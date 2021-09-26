@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	"github.com/echox/servicedef/export"
 	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/scan"
-	"github.com/echox/servicedef/util"
 
 	"github.com/fatih/color"
 )
@@ -34,18 +32,18 @@ func main() {
 		rules = loadRules(cfg)
 	}
 
-	var services []ServiceDef
+	var services ServiceDefs
 	if cfg.Services {
 		log.Println("parsing services file...")
 		var json_error error
-		services, json_error = parse_services(cfg.Services_File)
+		json_error = services.Init(cfg.Services_File)
 		if json_error != nil {
 			log.Printf("parsing services error: %v", json_error)
 			return
 		}
 		log.Printf("Services #: %v", len(services))
 		for _, s := range services {
-			print_service(s)
+			s.Print()
 		}
 		log.Println("parsing services file finished")
 	} else {
@@ -54,8 +52,8 @@ func main() {
 
 	log.Println("parsing hosts file...")
 
-	var json_error error
-	hosts, json_error := parse_hosts(cfg.Hosts_File)
+	var hosts HostDefs
+	json_error := hosts.Init(cfg.Hosts_File)
 	if json_error != nil {
 		log.Printf("parsing hosts error: %v", json_error)
 		return
@@ -120,7 +118,7 @@ func contains(hosts []string, host Host) bool {
 	return false
 }
 
-func check_services(results []Host, services []ServiceDef, rules []RulesDef) {
+func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
 
 	for _, h := range results {
 		if len(h.Ports) == 0 {
@@ -130,7 +128,7 @@ func check_services(results []Host, services []ServiceDef, rules []RulesDef) {
 
 		for _, p := range h.Ports {
 			if p.State == "open" {
-				s, err := util.Find_service(p.Number, h, services)
+				s, err := services.Find(p.Number, h)
 				if err == nil {
 					log.Printf("[%v] %v - %v (%v)",
 						h.Ip,
@@ -228,40 +226,4 @@ func eval_http(rules RulesDef, uri string) bool {
 	}
 
 	return true
-}
-
-func parse_hosts(jsonFile io.Reader) ([]HostDef, error) {
-
-	var hosts []HostDef
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return hosts, err
-	}
-	if json_error := json.Unmarshal(byteValue, &hosts); json_error != nil {
-		return hosts, json_error
-	}
-	return hosts, nil
-}
-
-func print_service(service ServiceDef) {
-
-	var ports []int
-	for _, p := range service.Ports {
-		ports = append(ports, p.Port)
-	}
-
-	log.Printf("Service: %v %v - %v", service.Id, ports, service.Description)
-}
-
-func parse_services(jsonFile io.Reader) ([]ServiceDef, error) {
-
-	var services []ServiceDef
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return services, err
-	}
-	if json_error := json.Unmarshal(byteValue, &services); json_error != nil {
-		return services, json_error
-	}
-	return services, nil
 }
