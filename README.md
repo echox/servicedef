@@ -1,7 +1,5 @@
 # Servicedef
 
-WIP: Code doesn't match readme
-
 ## Description
 
 Servicedef lets you compare a list of service definitions against a list of hosts.
@@ -147,7 +145,6 @@ If you run into the following error check privileges:
 | -r | rules.json | use rules file |
 | -p | 60 | print nmap progress, set 0 to disable |
 | -q | false | quiet, don't print application logs to stdout |
-| -l logfile | scan.log | write logs to logfile |
 | -g graphviz.dot | false | export results as graphviz dotfile |
 | -t | 3 | number of parallel nmap scanning instances |
 | -c | false | Use nmap connect scan (doesn't require root privileges) |
