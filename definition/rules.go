@@ -1,11 +1,5 @@
 package definition
 
-import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
-)
-
 // RulesDef collection which can be referenced as Rules within a PortDef
 type RulesDef struct {
 	Name   string    `json:"name"`   // Identifier of the rule
@@ -25,20 +19,5 @@ type Rules []RulesDef
 
 // Init loads the rule definitions form a json file
 func (rules *Rules) Init(rulesFile string) error {
-
-	jsonFile, err := os.Open(rulesFile)
-	if err != nil {
-		return err
-	}
-
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return err
-	}
-
-	if json_error := json.Unmarshal(byteValue, rules); json_error != nil {
-		return json_error
-	}
-
-	return nil
+	return parseJSONFile(rulesFile, rules)
 }

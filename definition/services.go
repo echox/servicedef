@@ -1,11 +1,8 @@
 package definition
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"log"
-	"os"
 	"strings"
 
 	. "github.com/echox/servicedef/result"
@@ -33,22 +30,7 @@ type ServiceDefs []ServiceDef
 
 // Init loads the ServiceDefs form a json file
 func (defs *ServiceDefs) Init(servicesPath string) error {
-
-	jsonFile, err := os.Open(servicesPath)
-	if err != nil {
-		return err
-	}
-
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return err
-	}
-
-	if json_error := json.Unmarshal(byteValue, defs); json_error != nil {
-		return json_error
-	}
-
-	return nil
+	return parseJSONFile(servicesPath, defs)
 }
 
 // Find returns a service definition for a given host and port or an error

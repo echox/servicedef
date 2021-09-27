@@ -1,11 +1,8 @@
 package definition
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net"
-	"os"
 )
 
 // HostDef of the inventory
@@ -20,22 +17,7 @@ type HostDefs []HostDef
 
 // Init loads the HostDefs form a json file
 func (defs *HostDefs) Init(hostsPath string) error {
-
-	jsonFile, err := os.Open(hostsPath)
-	if err != nil {
-		return err
-	}
-
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return err
-	}
-
-	if json_error := json.Unmarshal(byteValue, defs); json_error != nil {
-		return json_error
-	}
-
-	return nil
+	return parseJSONFile(hostsPath, defs)
 }
 
 // Find returns a host definition by name or an error
