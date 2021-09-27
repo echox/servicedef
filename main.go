@@ -7,9 +7,10 @@ import (
 
 	"net/http"
 
+	. "github.com/echox/servicedef/result"
+	. "github.com/echox/servicedef/definition"
 	"github.com/echox/servicedef/config"
 	"github.com/echox/servicedef/export"
-	. "github.com/echox/servicedef/model"
 	"github.com/echox/servicedef/scan"
 
 	"github.com/fatih/color"

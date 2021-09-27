@@ -1,7 +1,9 @@
-package model
+package definition
 
 import (
 	"testing"
+
+	. "github.com/echox/servicedef/result"
 )
 
 func build_servicedefs() ServiceDefs {

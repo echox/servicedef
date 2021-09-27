@@ -13,7 +13,8 @@ import (
 	"time"
 
 	"github.com/echox/servicedef/config"
-	. "github.com/echox/servicedef/model"
+	. "github.com/echox/servicedef/result"
+	. "github.com/echox/servicedef/definition"
 
 	"github.com/Ullaakut/nmap/v2"
 	"github.com/fatih/color"

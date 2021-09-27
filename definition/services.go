@@ -1,4 +1,4 @@
-package model
+package definition
 
 import (
 	"encoding/json"
@@ -7,7 +7,25 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	. "github.com/echox/servicedef/result"
 )
+
+// ServiceDef of a service
+type ServiceDef struct {
+	Id          string    `json:"id"`          // Identifier
+	Description string    `json:"description"` //Short text description of the services purpose
+	Ports       []PortDef `json:"ports"`       // Port definitions of the service
+}
+
+// PortDef for a service
+type PortDef struct {
+	Port        int      `json:"port"` // Port used by the service
+	Protocol    string   `json:"protocol"`
+	Description string   `json:"description"` // Short text description what is handled at the specific port
+	Uri         string   `json:"uri"`         // Optional URI for reaching the service at the given port
+	Rules       []string `json:"rules"`       // Rules which should be fulfilled by the service
+	Hosts       []string `json:"hosts"`       // Hosts where the service is deployed. tags:tag can also be used
+}
 
 // Collection of service definitions from json file
 type ServiceDefs []ServiceDef

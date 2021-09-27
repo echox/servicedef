@@ -1,4 +1,4 @@
-package model
+package definition
 
 import (
 	"encoding/json"
@@ -7,6 +7,13 @@ import (
 	"io/ioutil"
 	"net"
 )
+
+// HostDef of the inventory
+type HostDef struct {
+	Address     string   `json:"address"`     // Adress, hostname or subnet in CIDR notation
+	Description string   `json:"description"` // Short text description of the hosts purpose
+	Tags        []string `json:"tags"`        // Tags for referencing a service
+}
 
 // Collection of host definitions from json file
 type HostDefs []HostDef
