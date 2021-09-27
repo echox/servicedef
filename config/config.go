@@ -4,34 +4,30 @@ package config
 
 import (
 	"flag"
-	"log"
-	"os"
+	"fmt"
 )
 
 // Config state of the application
 type Config struct {
-	Hosts_File        *os.File //Filehandle for the json hosts inventory, created during Init()
-	Services_File     *os.File //Filehandle for the json service catalogs, created during Init()
-	Rules_File        *os.File //Filehandle for the json rule file, created during Init()
-	Rules             string   //Relative filesystem path to the rules json file
-	Services          bool     //Relative filesystem path to the servies json file
-	Graphviz          string   //Relative filesystem path for the graphviz export file
-	Progress_Seconds  int      //Seconds after scanning progress gets logged to console
-	Connect_Scan      bool     //Should a TCP connect scan used during scanning
-	Default_Port_Scan bool     //Should only a small range of default ports be scanned
-	Threads           int      //Number of concurrent scanning threads
-	Quiet             bool     //Should the log be omitted
+	HostsPath         string //Relative filesystem path for the json hosts inventory
+	ServicesPath      string //Relative filesystem path for the json service catalogs
+	RulesPath         string //Relative filesystem path for the json rules file
+	Graphviz          string //Relative filesystem path for the graphviz export file
+	Progress_Seconds  int    //Seconds after scanning progress gets logged to console
+	Connect_Scan      bool   //Should a TCP connect scan used during scanning
+	Default_Port_Scan bool   //Should only a small range of default ports be scanned
+	Threads           int    //Number of concurrent scanning threads
+	Quiet             bool   //Should the log be omitted
 }
 
-// Init is used to parse the command line parameters, open file handles and
-// return the state of the current configuration
-// It uses golangs "flag" package for parsing command line flags
-func Init() Config {
+// Init is used to parse the command line parameters
+// It uses golangs "flag" package for parsing
+func Init() (Config, error) {
 
 	var cfg Config
 
 	flag.StringVar(&cfg.Graphviz, "g", "", "graphviz dot file export")
-	flag.StringVar(&cfg.Rules, "r", "", "use rules.json file")
+	flag.StringVar(&cfg.RulesPath, "r", "", "use rules.json file")
 	flag.IntVar(&cfg.Progress_Seconds, "p", 60, "print nmap scanning progress every x seconds")
 	flag.BoolVar(&cfg.Connect_Scan, "c", false, "do a nmap connect scan (doesn't require root privileges)")
 	flag.BoolVar(&cfg.Default_Port_Scan, "f", false, "scan only nmap default ports instead of all (faster)")
@@ -41,35 +37,14 @@ func Init() Config {
 
 	args := len(flag.Args())
 	if args != 1 && args != 2 {
-		log.Printf("wrong arguments (%v) use: ./servicedef hosts.json [services.json]", args)
-		os.Exit(1)
+		return cfg, fmt.Errorf("wrong arguments (%v) use: ./servicedef hosts.json [services.json]", args)
 	}
 
-	if h, err := os.Open(flag.Arg(0)); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	} else {
-		cfg.Hosts_File = h
-	}
+	cfg.HostsPath = flag.Arg(0)
 
 	if args == 2 {
-		if s, err := os.Open(flag.Arg(1)); err != nil {
-			log.Println(err)
-			os.Exit(1)
-		} else {
-			cfg.Services_File = s
-			cfg.Services = true
-		}
+		cfg.ServicesPath = flag.Arg(1)
 	}
 
-	if cfg.Rules != "" {
-		if r, err := os.Open(cfg.Rules); err != nil {
-			log.Println(err)
-			os.Exit(1)
-		} else {
-			cfg.Rules_File = r
-		}
-	}
-
-	return cfg
+	return cfg, nil
 }

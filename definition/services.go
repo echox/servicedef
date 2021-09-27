@@ -3,10 +3,11 @@ package definition
 import (
 	"encoding/json"
 	"errors"
-	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
+
 	. "github.com/echox/servicedef/result"
 )
 
@@ -31,15 +32,22 @@ type PortDef struct {
 type ServiceDefs []ServiceDef
 
 // Init loads the ServiceDefs form a json file
-func (defs *ServiceDefs) Init(jsonFile io.Reader) error {
+func (defs *ServiceDefs) Init(servicesPath string) error {
+
+	jsonFile, err := os.Open(servicesPath)
+	if err != nil {
+		return err
+	}
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		return err
 	}
+
 	if json_error := json.Unmarshal(byteValue, defs); json_error != nil {
 		return json_error
 	}
+
 	return nil
 }
 
@@ -73,6 +81,7 @@ func (defs *ServiceDefs) Find(port int, host Host) (ServiceDef, error) {
 	return r, errors.New("NOT_FOUND")
 }
 
+// Print in a loggin friendly way
 func (service *ServiceDef) Print() {
 
 	var ports []int

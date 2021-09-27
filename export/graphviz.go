@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	. "github.com/echox/servicedef/result"
 	. "github.com/echox/servicedef/definition"
+	. "github.com/echox/servicedef/result"
 
 	"github.com/emicklei/dot"
 	"github.com/google/uuid"

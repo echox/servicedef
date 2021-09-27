@@ -3,14 +3,15 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	"net/http"
 
-	. "github.com/echox/servicedef/result"
-	. "github.com/echox/servicedef/definition"
 	"github.com/echox/servicedef/config"
+	. "github.com/echox/servicedef/definition"
 	"github.com/echox/servicedef/export"
+	. "github.com/echox/servicedef/result"
 	"github.com/echox/servicedef/scan"
 
 	"github.com/fatih/color"
@@ -19,7 +20,11 @@ import (
 func main() {
 	log.Println("running servicedef v0")
 
-	cfg := config.Init()
+	cfg, err := config.Init()
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
 	if cfg.Quiet {
 		log.SetOutput(ioutil.Discard)
@@ -32,9 +37,9 @@ func main() {
 	)
 
 	log.Println("parsing hosts file...")
-	if json_error := hosts.Init(cfg.Hosts_File); json_error != nil {
+	if json_error := hosts.Init(cfg.HostsPath); json_error != nil {
 		log.Printf("parsing hosts error: %v", json_error)
-		return
+		os.Exit(1)
 	}
 	color.Set(color.FgYellow)
 	for _, h := range hosts {
@@ -43,11 +48,11 @@ func main() {
 	color.Unset()
 	log.Println("parsing hosts file finished")
 
-	if cfg.Services {
+	if cfg.ServicesPath != "" {
 		log.Println("parsing services file...")
-		if json_error := services.Init(cfg.Services_File); json_error != nil {
+		if json_error := services.Init(cfg.ServicesPath); json_error != nil {
 			log.Printf("parsing services error: %v", json_error)
-			return
+			os.Exit(1)
 		}
 		log.Printf("Services #: %v", len(services))
 		for _, s := range services {
@@ -58,12 +63,16 @@ func main() {
 		log.Println("no service definitions - scanning only")
 	}
 
-	if cfg.Rules == "" {
+	if cfg.RulesPath == "" {
 		log.Println("no rules supplied, use (-r) if needed")
 	} else {
-		if err := rules.Init(cfg); err != nil {
+		log.Printf("loading rule file %v", cfg.RulesPath)
+
+		if err := rules.Init(cfg.RulesPath); err != nil {
 			log.Printf("error loading rules: %v", err)
+			os.Exit(1)
 		}
+		log.Printf("Rules #: %v", len(rules))
 	}
 
 	color.Set(color.FgGreen)
@@ -74,7 +83,7 @@ func main() {
 	log.Println("scanning hosts finished")
 	color.Unset()
 
-	if cfg.Services {
+	if len(services) != 0 {
 
 		log.Println("checking services...")
 		check_services(results, services, rules)
