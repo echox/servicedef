@@ -64,13 +64,14 @@ func main() {
 	}
 	color.Unset()
 	log.Tracef("parsing hosts file finished")
+	log.Printf("host definitions: %v", len(hosts))
 
 	if cfg.ServicesPath != "" {
 		log.Tracef("parsing services file...")
 		if json_error := services.Init(cfg.ServicesPath); json_error != nil {
 			log.Fatalf("parsing services error: %v", json_error)
 		}
-		log.Printf("Services #: %v", len(services))
+		log.Printf("service definitions: %v", len(services))
 		for _, s := range services {
 			s.Print()
 		}
