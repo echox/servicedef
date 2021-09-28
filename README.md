@@ -140,16 +140,17 @@ If you run into the following error check privileges:
 ./servicedef hosts.json [services.json]
 ```
 
-| Switch | Default | Description |
-| --- | --- | --- |
-| -r | rules.json | use rules file |
-| -p | 60 | print nmap progress, set 0 to disable |
-| -q | false | quiet, don't print application logs to stdout |
-| -g graphviz.dot | false | export results as graphviz dotfile |
-| -t | 3 | number of parallel nmap scanning instances |
-| -c | false | Use nmap connect scan (doesn't require root privileges) |
-| -f | false | Use nmap fast scan instead of scanning for all ports |
-| -h | | Print list of options and default values | 
+| Switch       | Default | Description |
+| ------------ | ------- | ----------- |
+| -r file.json | false   | use rules file |
+| -p           | 60      | print nmap progress, set 0 to disable |
+| -g file.dot  | false   | export results as graphviz dotfile |
+| -t           | 3       | number of parallel nmap scanning instances |
+| -c           | false   | Use nmap connect scan (doesn't require root privileges) |
+| -f           | false   | Use nmap fast scan instead of scanning for all ports |
+| -ll          | info    | set loglevel (trace, debug, info, error, fatal) use panic to disable output |
+| -j           | false   | format logoutput as json |
+| -h           |         | Print list of options and default values | 
 
 ## Graphviz Export
 ```cat graph.dot | dot -Grankdir=LR -Tpdf > graph.pdf && open graph.pdf```

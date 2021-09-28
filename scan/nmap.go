@@ -8,7 +8,8 @@
 package scan
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
+
 	"sync"
 	"time"
 
@@ -110,14 +111,14 @@ func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
 
 	if e != nil {
 		color.Set(color.FgRed)
-		log.Printf("[worker_%v]unable to run nmap scan: %v", id, e)
+		log.Errorf("[worker_%v]unable to run nmap scan: %v", id, e)
 		color.Unset()
 		return nil, e
 	}
 
 	if w != nil {
 		color.Set(color.FgYellow)
-		log.Printf("[worker_%v] Warnings: \n %v", id, w)
+		log.Warnf("[worker_%v] Warnings: \n %v", id, w)
 		color.Unset()
 	}
 

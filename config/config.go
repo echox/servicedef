@@ -17,7 +17,8 @@ type Config struct {
 	Connect_Scan      bool   //Should a TCP connect scan used during scanning
 	Default_Port_Scan bool   //Should only a small range of default ports be scanned
 	Threads           int    //Number of concurrent scanning threads
-	Quiet             bool   //Should the log be omitted
+	Loglevel          string //Loglevel for logrus
+	JSONLog           bool   //enable JSON logging
 }
 
 // Init is used to parse the command line parameters
@@ -32,7 +33,8 @@ func Init() (Config, error) {
 	flag.BoolVar(&cfg.Connect_Scan, "c", false, "do a nmap connect scan (doesn't require root privileges)")
 	flag.BoolVar(&cfg.Default_Port_Scan, "f", false, "scan only nmap default ports instead of all (faster)")
 	flag.IntVar(&cfg.Threads, "t", 3, "number of parallel nmap scanning threads")
-	flag.BoolVar(&cfg.Quiet, "q", false, "quiet - don't print to stdout")
+	flag.StringVar(&cfg.Loglevel, "ll", "info", "loglevel: debug, info, warn, error, fatal - use panic to disable output")
+	flag.BoolVar(&cfg.JSONLog, "j", false, "enable structured JSON logging")
 	flag.Parse()
 
 	args := len(flag.Args())

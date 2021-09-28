@@ -2,8 +2,8 @@ package export
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 
 	. "github.com/echox/servicedef/definition"
 	. "github.com/echox/servicedef/result"

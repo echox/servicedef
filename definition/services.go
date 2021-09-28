@@ -2,7 +2,8 @@ package definition
 
 import (
 	"errors"
-	"log"
+	log "github.com/sirupsen/logrus"
+
 	"strings"
 
 	. "github.com/echox/servicedef/result"
@@ -71,5 +72,5 @@ func (service *ServiceDef) Print() {
 		ports = append(ports, p.Port)
 	}
 
-	log.Printf("Service: %v %v - %v", service.Id, ports, service.Description)
+	log.Debugf("Service: %v %v - %v", service.Id, ports, service.Description)
 }

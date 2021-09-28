@@ -1,8 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
-	"log"
+	"fmt"
 	"os"
 	"strings"
 
@@ -15,20 +14,39 @@ import (
 	"github.com/echox/servicedef/scan"
 
 	"github.com/fatih/color"
+	log "github.com/sirupsen/logrus"
 )
 
+func initLog(cfg config.Config) {
+
+	if cfg.JSONLog {
+		log.SetFormatter(&log.JSONFormatter{})
+	} else {
+		log.SetFormatter(&log.TextFormatter{
+			FullTimestamp: true,
+			DisableColors: true, // use custom formatter, see https://github.com/sirupsen/logrus/issues/1194
+		})
+	}
+
+	if lvl, err := log.ParseLevel(cfg.Loglevel); err != nil {
+		log.Warnf("Couldn't parse loglevel \"%s\" using info instead.", cfg.Loglevel)
+		log.SetLevel(log.InfoLevel)
+	} else {
+		log.SetLevel(lvl)
+	}
+
+}
+
 func main() {
-	log.Println("running servicedef v0")
 
 	cfg, err := config.Init()
 	if err != nil {
-		log.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+	initLog(cfg)
 
-	if cfg.Quiet {
-		log.SetOutput(ioutil.Discard)
-	}
+	log.Println("running servicedef v0")
 
 	var (
 		hosts    HostDefs
@@ -36,29 +54,27 @@ func main() {
 		rules    Rules
 	)
 
-	log.Println("parsing hosts file...")
+	log.Tracef("parsing hosts file...")
 	if json_error := hosts.Init(cfg.HostsPath); json_error != nil {
-		log.Printf("parsing hosts error: %v", json_error)
-		os.Exit(1)
+		log.Fatalf("parsing hosts error: %v", json_error)
 	}
 	color.Set(color.FgYellow)
 	for _, h := range hosts {
-		log.Printf("Host: %v %v", h.Address, h.Description)
+		log.Debugf("Host: %v %v", h.Address, h.Description)
 	}
 	color.Unset()
-	log.Println("parsing hosts file finished")
+	log.Tracef("parsing hosts file finished")
 
 	if cfg.ServicesPath != "" {
-		log.Println("parsing services file...")
+		log.Tracef("parsing services file...")
 		if json_error := services.Init(cfg.ServicesPath); json_error != nil {
-			log.Printf("parsing services error: %v", json_error)
-			os.Exit(1)
+			log.Fatalf("parsing services error: %v", json_error)
 		}
 		log.Printf("Services #: %v", len(services))
 		for _, s := range services {
 			s.Print()
 		}
-		log.Println("parsing services file finished")
+		log.Tracef("parsing services file finished")
 	} else {
 		log.Println("no service definitions - scanning only")
 	}
@@ -69,8 +85,7 @@ func main() {
 		log.Printf("loading rule file %v", cfg.RulesPath)
 
 		if err := rules.Init(cfg.RulesPath); err != nil {
-			log.Printf("error loading rules: %v", err)
-			os.Exit(1)
+			log.Fatalf("error loading rules: %v", err)
 		}
 		log.Printf("Rules #: %v", len(rules))
 	}
@@ -88,14 +103,14 @@ func main() {
 		log.Println("checking services...")
 		check_services(results, services, rules)
 		color.Set(color.FgGreen)
-		log.Println("finished checking services")
+		log.Tracef("finished checking services")
 		color.Unset()
 	}
 
 	if cfg.Graphviz != "" {
 		log.Println("writing graphviz dot file...")
 		export.Write_graphviz(results, services, hosts, cfg.Graphviz)
-		log.Println("finished writing graphviz dot file")
+		log.Tracef("finished writing graphviz dot file")
 	}
 
 	log.Println("finished")
@@ -172,7 +187,7 @@ func check_rules(rules []RulesDef, port PortDef, port_result *Port, service Serv
 func eval_http(rules RulesDef, uri string) bool {
 
 	if uri == "" {
-		log.Printf("URI needed for checking %v", rules.Name)
+		log.Warnf("URI needed for checking %v", rules.Name)
 		return false
 	}
 
@@ -183,7 +198,7 @@ func eval_http(rules RulesDef, uri string) bool {
 	}
 	r, err := hc.Get(uri)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return false
 	}
 	defer r.Body.Close()
