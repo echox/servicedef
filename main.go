@@ -106,6 +106,9 @@ func main() {
 		color.Set(color.FgGreen)
 		log.Tracef("finished checking services")
 		color.Unset()
+	} else {
+		log.Println("no services to check - only printing open ports...")
+		print_open_ports(results)
 	}
 
 	if cfg.Graphviz != "" {
@@ -126,6 +129,29 @@ func contains(hosts []string, host Host) bool {
 	}
 
 	return false
+}
+
+func print_open_ports(results []Host) {
+
+	for _, h := range results {
+		if len(h.Ports) == 0 {
+			log.Printf("[%v] no exposed ports", h.Ip)
+			continue
+		}
+
+		for _, p := range h.Ports {
+			if p.State == "open" {
+				color.Set(color.FgRed)
+				log.Printf("[%v] %v %v: %v %v",
+					h.Ip,
+					p.Number,
+					p.State,
+					p.Name,
+					p.Version)
+				color.Unset()
+			}
+		}
+	}
 }
 
 func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
