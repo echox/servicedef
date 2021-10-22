@@ -21,6 +21,32 @@ import (
 	"github.com/fatih/color"
 )
 
+func containsHost(results *[]Host, host Host) *Host {
+	for _, resultHost := range *results {
+		if resultHost.Ip == host.Ip {
+			return &resultHost
+		}
+	}
+	return nil
+}
+
+func mergeHosts(target *Host, source Host) {
+	for _, port := range source.Ports {
+		if !portExists(target, port) {
+			target.Ports = append(target.Ports, port)
+		}
+	}
+}
+
+func portExists(target *Host, port Port) bool {
+	for _, target_port := range target.Ports {
+		if port.Number == target_port.Number {
+			return true
+		}
+	}
+	return false
+}
+
 // Scan_hosts evaluates a given list of host definitions
 // The configuration is needed for knowing if scanning progress should be
 // logged
@@ -40,7 +66,12 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 	wg_collector.Add(1)
 	go func() {
 		for result_host := range result_queue {
-			result_hosts = append(result_hosts, result_host)
+			existing := containsHost(&result_hosts, result_host)
+			if existing != nil {
+				mergeHosts(existing, result_host)
+			} else {
+				result_hosts = append(result_hosts, result_host)
+			}
 		}
 		defer wg_collector.Done()
 	}()
