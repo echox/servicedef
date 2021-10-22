@@ -88,7 +88,7 @@ func main() {
 		if err := rules.Init(cfg.RulesPath); err != nil {
 			log.Fatalf("error loading rules: %v", err)
 		}
-		log.Printf("Rules #: %v", len(rules))
+		log.Printf("Rules definitions: %v", len(rules))
 	}
 
 	color.Set(color.FgGreen)
