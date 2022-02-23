@@ -23,7 +23,7 @@ type PortDef struct {
 	Description string   `json:"description"` // Short text description what is handled at the specific port
 	Uri         string   `json:"uri"`         // Optional URI for reaching the service at the given port
 	Rules       []string `json:"rules"`       // Rules which should be fulfilled by the service
-	Hosts       []string `json:"hosts"`       // Hosts where the service is deployed. tags:tag can also be used
+	Hosts       []string `json:"hosts"`       // Hosts where the service is deployed. tag:tagvalue can also be used
 }
 
 // Collection of service definitions from json file
@@ -77,7 +77,7 @@ func (defs *ServiceDefs) Remove(service ServiceDef) ServiceDefs {
 	return (*defs)[:i]
 }
 
-// Print in a loggin friendly way
+// Print in a logging friendly way
 func (service *ServiceDef) Print() {
 
 	var ports []int

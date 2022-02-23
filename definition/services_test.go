@@ -21,6 +21,12 @@ func build_servicedefs() ServiceDefs {
 					Hosts: []string{"172.16.1.1"},
 				},
 			}},
+		ServiceDef{Id: "Proxy", Description: "proxy test description",
+			Ports: []PortDef{
+				PortDef{Port: 8080,
+					Hosts: []string{"tag:proxy"},
+				},
+			}},
 	}
 }
 
@@ -63,4 +69,45 @@ func TestServiceFind(t *testing.T) {
 		t.Errorf("Shouldn't find service but got %v", s)
 	}
 
+	//tagged host
+	if s, err := services.Find(8080, Host{Tags: []string{"proxy"}}); err == nil {
+		if s.Id != "Proxy" {
+			t.Errorf("Should find 'proxy' service but got %s", s.Id)
+		}
+	} else {
+		t.Errorf("Should find 'proxy' service but got %v", err)
+	}
+
+	//tag does not match
+	if s, err := services.Find(8080, Host{Tags: []string{"proxyy"}}); err == nil {
+		t.Errorf("Should not find service but got %s", s.Id)
+	}
+}
+
+func TestServiceRemoveLast(t *testing.T) {
+
+	services := build_servicedefs()
+
+	ssh := ServiceDef{Id: "SSH"}
+	services = services.Remove(ssh)
+
+	for _, s := range services {
+		if s.Id == ssh.Id {
+			t.Errorf("Remove(Id=%s) did fail", ssh.Id)
+		}
+	}
+}
+
+func TestServiceRemoveFirst(t *testing.T) {
+
+	services := build_servicedefs()
+
+	http := ServiceDef{Id: "HTTP Service"}
+	services = services.Remove(http)
+
+	for _, s := range services {
+		if s.Id == http.Id {
+			t.Errorf("Remove(Id=%s) did fail", http.Id)
+		}
+	}
 }
