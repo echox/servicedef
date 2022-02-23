@@ -64,6 +64,19 @@ func (defs *ServiceDefs) Find(port int, host Host) (ServiceDef, error) {
 	return r, errors.New("NOT_FOUND")
 }
 
+// Return service definitions without the given service
+func (defs *ServiceDefs) Remove(service ServiceDef) ServiceDefs {
+
+	i := 0
+	for _, s := range *defs {
+		if s.Id != service.Id {
+			(*defs)[i] = s
+			i++
+		}
+	}
+	return (*defs)[:i]
+}
+
 // Print in a loggin friendly way
 func (service *ServiceDef) Print() {
 

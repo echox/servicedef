@@ -162,6 +162,9 @@ func print_open_ports(results []Host) {
 
 func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
 
+	servicesNotUsed := make(ServiceDefs, len(services))
+	copy(servicesNotUsed, services)
+
 	for _, h := range results {
 		if len(h.Ports) == 0 {
 			log.Printf("[%v] no exposed services", h.Ip)
@@ -172,6 +175,7 @@ func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
 			if p.State == "open" {
 				s, err := services.Find(p.Number, h)
 				if err == nil {
+					servicesNotUsed = servicesNotUsed.Remove(s)
 					log.Printf("[%v] %v - %v (%v)",
 						h.Ip,
 						p.Number,
@@ -195,6 +199,14 @@ func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
 				}
 			}
 		}
+
+	}
+
+	color.Set(color.FgYellow)
+	log.Printf("services in the catalog but not found during scan: %d", len(servicesNotUsed))
+	color.Unset()
+	for _, s := range servicesNotUsed {
+		log.Printf("Service defined but not found: %s - %s", s.Id, s.Description)
 	}
 }
 
