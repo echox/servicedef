@@ -52,7 +52,8 @@ func portExists(target *Host, port Port) bool {
 // logged
 func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
-	p := make(chan HostDef, len(hosts))
+	toScanCount := len(hosts)
+	p := make(chan HostDef, toScanCount)
 	result_queue := make(chan Host, 10)
 
 	var result_hosts []Host
@@ -71,6 +72,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 				mergeHosts(existing, result_host)
 			} else {
 				result_hosts = append(result_hosts, result_host)
+				log.Printf("%d/%d scanned", len(result_hosts), toScanCount)
 			}
 		}
 		defer wg_collector.Done()

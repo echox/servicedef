@@ -125,13 +125,13 @@ func contains(hosts []string, host Host) bool {
 	for _, h := range hosts {
 		if h == host.Ip || h == host.Dns {
 			return true
-		} else if (strings.HasPrefix(h,"tag:")) {
-                        for _, tag := range host.Tags {
-                                if ("tag:"+tag == h) {
-                                        return true
-                                }
-                        }
-                }
+		} else if strings.HasPrefix(h, "tag:") {
+			for _, tag := range host.Tags {
+				if "tag:"+tag == h {
+					return true
+				}
+			}
+		}
 	}
 
 	return false
