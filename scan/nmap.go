@@ -21,6 +21,12 @@ import (
 	"github.com/fatih/color"
 )
 
+type ScannedCounter struct {
+	mu      sync.Mutex
+	counter int
+	max     int
+}
+
 func containsHost(results *[]Host, host Host) *Host {
 	for _, resultHost := range *results {
 		if resultHost.Ip == host.Ip {
@@ -52,8 +58,8 @@ func portExists(target *Host, port Port) bool {
 // logged
 func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
-	toScanCount := len(hosts)
-	p := make(chan HostDef, toScanCount)
+	scanned := ScannedCounter{counter: 0, max: len(hosts)}
+	p := make(chan HostDef, scanned.max)
 	result_queue := make(chan Host, 10)
 
 	var result_hosts []Host
@@ -72,7 +78,6 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 				mergeHosts(existing, result_host)
 			} else {
 				result_hosts = append(result_hosts, result_host)
-				log.Printf("%d/%d scanned", len(result_hosts), toScanCount)
 			}
 		}
 		defer wg_collector.Done()
@@ -82,7 +87,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
 
 	for i := 1; i <= cfg.Threads; i++ {
 		wg.Add(1)
-		go scan_host_worker(i, p, &wg, result_queue, cfg)
+		go scan_host_worker(i, p, &scanned, &wg, result_queue, cfg)
 	}
 	wg.Wait()
 	close(result_queue)
@@ -162,7 +167,7 @@ func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
 	return result, nil
 }
 
-func scan_host_worker(id int, pool chan HostDef, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
+func scan_host_worker(id int, pool chan HostDef, scanned *ScannedCounter, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
 
 	for hostDef := range pool {
 		if sr, err := scan_host(id, hostDef.Address, cfg); err == nil {
@@ -172,6 +177,10 @@ func scan_host_worker(id int, pool chan HostDef, wg *sync.WaitGroup, result_queu
 				result_queue <- h
 			}
 		}
+		scanned.mu.Lock()
+		scanned.counter++
+		scanned.mu.Unlock()
+		log.Printf("%d/%d definitions scanned", scanned.counter, scanned.max)
 	}
 
 	log.Printf("[worker_%v] finished queue", id)
