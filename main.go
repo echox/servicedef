@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sort"
 
 	"net/http"
 
@@ -98,6 +99,9 @@ func main() {
 	color.Set(color.FgGreen)
 	log.Println("scanning hosts finished")
 	color.Unset()
+
+	// sort result list before exports to make things more comparable
+	sort.SliceStable(results, func(i, j int) bool { return results[i].Ip < results[j].Ip})
 
 	if len(services) != 0 {
 
