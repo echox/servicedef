@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 	"sort"
+	"strings"
 
 	"net/http"
 
@@ -101,7 +101,7 @@ func main() {
 	color.Unset()
 
 	// sort result list before exports to make things more comparable
-	sort.SliceStable(results, func(i, j int) bool { return results[i].Ip < results[j].Ip})
+	sort.SliceStable(results, func(i, j int) bool { return results[i].Ip < results[j].Ip })
 
 	if len(services) != 0 {
 
