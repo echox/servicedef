@@ -156,12 +156,12 @@ func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
 
 	if w != nil {
 		color.Set(color.FgYellow)
-		log.Warnf("[worker_%v] Warnings: \n %v", id, w)
+		log.Warnf("[worker_%v] Warnings: %v", id, w)
 		color.Unset()
 	}
 
 	color.Set(color.FgGreen)
-	log.Printf("[worker_%v] [%v] nmap done: %d hosts up scanned in %3f seconds\n", id, host, len(result.Hosts), result.Stats.Finished.Elapsed)
+	log.Printf("[worker_%v] [%v] nmap done: %d hosts up scanned in %3f seconds", id, host, len(result.Hosts), result.Stats.Finished.Elapsed)
 	color.Unset()
 
 	return result, nil
