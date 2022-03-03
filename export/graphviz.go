@@ -24,7 +24,7 @@ func add_host_description(host_label string, host Host, definitions HostDefs) st
 	return host_label
 }
 
-func Write_graphviz(hosts []Host, services ServiceDefs, hosts_def HostDefs, file string) {
+func Write_graphviz(hosts ResultHosts, services ServiceDefs, hosts_def HostDefs, file string) {
 
 	g := dot.NewGraph(dot.Directed)
 	internet := g.Node("internet")
