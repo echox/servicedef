@@ -51,6 +51,7 @@ func (results ResultHosts) PrintOpenPorts() {
 	}
 }
 
+// Check if host matches Ip, DNS or Tag within supplied list
 func (host Host) Inside(list []string) bool {
 
 	for _, item := range list {
