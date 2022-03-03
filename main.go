@@ -177,30 +177,7 @@ func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
 
 		for _, p := range h.Ports {
 			if p.State == "open" {
-				s, err := services.Find(p.Number, h)
-				if err == nil {
-					servicesNotUsed = servicesNotUsed.Remove(s)
-					log.Printf("[%v] %v - %v (%v)",
-						h.Ip,
-						p.Number,
-						s.Id,
-						s.Description)
-
-					for _, pDef := range s.Ports {
-						if len(pDef.Rules) != 0 && pDef.Port == p.Number && contains(pDef.Hosts, h) {
-							check_rules(rules, pDef, &p, s, h.Ip)
-						}
-					}
-				} else {
-					color.Set(color.FgRed)
-					log.Printf("! [%v] %v %v: no service definition found (%v %v)",
-						h.Ip,
-						p.Number,
-						p.State,
-						p.Name,
-						p.Version)
-					color.Unset()
-				}
+				check_open_port(services, servicesNotUsed, rules, p, h)
 			}
 		}
 
@@ -212,6 +189,35 @@ func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
 	for _, s := range servicesNotUsed {
 		log.Printf("Service defined but not found: %s - %s", s.Id, s.Description)
 	}
+}
+
+func check_open_port(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port Port, host Host) {
+
+	service, err := services.Find(port.Number, host)
+	if err == nil {
+		servicesNotUsed = servicesNotUsed.Remove(service)
+		log.Printf("[%v] %v - %v (%v)",
+			host.Ip,
+			port.Number,
+			service.Id,
+			service.Description)
+
+		for _, pDef := range service.Ports {
+			if len(pDef.Rules) != 0 && pDef.Port == port.Number && contains(pDef.Hosts, host) {
+				check_rules(rules, pDef, &port, service, host.Ip)
+			}
+		}
+	} else {
+		color.Set(color.FgRed)
+		log.Printf("! [%v] %v %v: no service definition found (%v %v)",
+			host.Ip,
+			port.Number,
+			port.State,
+			port.Name,
+			port.Version)
+		color.Unset()
+	}
+
 }
 
 func check_rules(rules []RulesDef, port PortDef, port_result *Port, service ServiceDef, ip string) {
