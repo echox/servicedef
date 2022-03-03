@@ -27,7 +27,7 @@ type ScannedCounter struct {
 	max     int
 }
 
-func containsHost(results *[]Host, host Host) *Host {
+func containsHost(results *ResultHosts, host Host) *Host {
 	for _, resultHost := range *results {
 		if resultHost.Ip == host.Ip {
 			return &resultHost
@@ -56,13 +56,13 @@ func portExists(target *Host, port Port) bool {
 // Scan_hosts evaluates a given list of host definitions
 // The configuration is needed for knowing if scanning progress should be
 // logged
-func Scan_hosts(hosts []HostDef, cfg config.Config) []Host {
+func Scan_hosts(hosts []HostDef, cfg config.Config) ResultHosts {
 
 	scanned := ScannedCounter{counter: 0, max: len(hosts)}
 	p := make(chan HostDef, scanned.max)
 	result_queue := make(chan Host, 10)
 
-	var result_hosts []Host
+	var result_hosts ResultHosts
 
 	for _, h := range hosts {
 		p <- h

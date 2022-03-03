@@ -6,9 +6,9 @@ import (
 	. "github.com/echox/servicedef/result"
 )
 
-func build_hosts() []Host {
+func build_hosts() ResultHosts {
 
-	return []Host{
+	return ResultHosts{
 		Host{Ip: "127.0.0.1"},
 		Host{Ip: "192.168.1.1", Ports: []Port{Port{Number: 80}, Port{Number: 443}}},
 		Host{Ip: "1.1.1.1", Ports: []Port{Port{Number: 8080}}},

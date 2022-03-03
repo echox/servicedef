@@ -112,7 +112,7 @@ func main() {
 		color.Unset()
 	} else {
 		log.Println("no services to check - only printing open ports...")
-		print_open_ports(results)
+		results.PrintOpenPorts()
 	}
 
 	if cfg.Graphviz != "" {
@@ -124,47 +124,7 @@ func main() {
 	log.Println("finished")
 }
 
-func contains(hosts []string, host Host) bool {
-
-	for _, h := range hosts {
-		if h == host.Ip || h == host.Dns {
-			return true
-		} else if strings.HasPrefix(h, "tag:") {
-			for _, tag := range host.Tags {
-				if "tag:"+tag == h {
-					return true
-				}
-			}
-		}
-	}
-
-	return false
-}
-
-func print_open_ports(results []Host) {
-
-	for _, h := range results {
-		if len(h.Ports) == 0 {
-			log.Printf("[%v] no exposed ports", h.Ip)
-			continue
-		}
-
-		for _, p := range h.Ports {
-			if p.State == "open" {
-				color.Set(color.FgRed)
-				log.Printf("[%v] %v %v: %v %v",
-					h.Ip,
-					p.Number,
-					p.State,
-					p.Name,
-					p.Version)
-				color.Unset()
-			}
-		}
-	}
-}
-
-func check_services(results []Host, services ServiceDefs, rules []RulesDef) {
+func check_services(results ResultHosts, services ServiceDefs, rules []RulesDef) {
 
 	servicesNotUsed := make(ServiceDefs, len(services))
 	copy(servicesNotUsed, services)
@@ -203,7 +163,7 @@ func check_open_port(services ServiceDefs, servicesNotUsed ServiceDefs, rules []
 			service.Description)
 
 		for _, pDef := range service.Ports {
-			if len(pDef.Rules) != 0 && pDef.Port == port.Number && contains(pDef.Hosts, host) {
+			if len(pDef.Rules) != 0 && pDef.Port == port.Number && host.Inside(pDef.Hosts) {
 				check_rules(rules, pDef, &port, service, host.Ip)
 			}
 		}
