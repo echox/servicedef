@@ -21,11 +21,12 @@ type Host struct {
 
 // Port represents a discovered port on a scanned host
 type Port struct {
-	Number       int             // Numeric port representation
-	Version      string          // Optional, version string if discovered
-	State        string          // State of port either open, closed or filtered
-	Name         string          // Name according to /etc/services
-	Rule_Results map[string]bool // Rule evaluation results
+	Number      int             // Numeric port representation
+	Version     string          // Optional, version string if discovered
+	State       string          // State of port either open, closed or filtered
+	Name        string          // Name according to /etc/services
+	RuleResults map[string]bool // Rule evaluation results
+	ServiceId   string          // Discovered ServiceID from catalog
 }
 
 func (results ResultHosts) PrintOpenPorts() {

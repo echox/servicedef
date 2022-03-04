@@ -13,6 +13,7 @@ type Config struct {
 	ServicesPath      string //Relative filesystem path for the json service catalogs
 	RulesPath         string //Relative filesystem path for the json rules file
 	Graphviz          string //Relative filesystem path for the graphviz export file
+	ResultPath        string //Relative filesystem path for the result json file
 	Progress_Seconds  int    //Seconds after scanning progress gets logged to console
 	Connect_Scan      bool   //Should a TCP connect scan used during scanning
 	Default_Port_Scan bool   //Should only a small range of default ports be scanned
@@ -27,6 +28,7 @@ func Init() (Config, error) {
 
 	var cfg Config
 
+	flag.StringVar(&cfg.ResultPath, "e", "", "export results in json file")
 	flag.StringVar(&cfg.Graphviz, "g", "", "graphviz dot file export")
 	flag.StringVar(&cfg.RulesPath, "r", "", "use rules.json file")
 	flag.IntVar(&cfg.Progress_Seconds, "p", 60, "print nmap scanning progress every x seconds")

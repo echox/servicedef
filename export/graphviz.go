@@ -44,7 +44,7 @@ func WriteGraphviz(hosts ResultHosts, services ServiceDefs, hosts_def HostDefs, 
 			if p.State == "open" {
 
 				service_node := g.Node(uuid.NewString())
-				s, err := services.Find(p.Number, h)
+				s, err := services.FindById(p.ServiceId)
 				if err == nil {
 					lbl := fmt.Sprintf("Port %v\n%v", p.Number, s.Id)
 					service_node = service_node.Attr("label", lbl)
@@ -56,7 +56,7 @@ func WriteGraphviz(hosts ResultHosts, services ServiceDefs, hosts_def HostDefs, 
 				}
 				g.Edge(host_node, service_node)
 
-				for r, v := range p.Rule_Results {
+				for r, v := range p.RuleResults {
 
 					lbl := r + ": "
 					rule_node := g.Node(uuid.NewString()).Attr("shape", "hexagon")

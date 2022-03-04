@@ -144,6 +144,7 @@ If you run into the following error check privileges:
 | ------------ | ------- | ----------- |
 | -r file.json | false   | use rules file |
 | -p           | 60      | print nmap progress, set 0 to disable |
+| -e file.json | false   | export results as json file |
 | -g file.dot  | false   | export results as graphviz dotfile |
 | -t           | 3       | number of parallel nmap scanning instances |
 | -c           | false   | Use nmap connect scan (doesn't require root privileges) |

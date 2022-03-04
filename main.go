@@ -106,13 +106,17 @@ func main() {
 	if len(services) != 0 {
 
 		log.Println("checking services...")
-		checkServices(results, services, rules)
+		mapServices(results, services, rules)
 		color.Set(color.FgGreen)
 		log.Tracef("finished checking services")
 		color.Unset()
 	} else {
 		log.Println("no services to check - only printing open ports...")
 		results.PrintOpenPorts()
+	}
+
+	if cfg.ResultPath != "" {
+		export.WriteJSON(results, cfg.ResultPath)
 	}
 
 	if cfg.Graphviz != "" {
@@ -124,22 +128,23 @@ func main() {
 	log.Println("finished")
 }
 
-func checkServices(results ResultHosts, services ServiceDefs, rules []RulesDef) {
+func mapServices(results ResultHosts, services ServiceDefs, rules []RulesDef) {
 
 	servicesNotUsed := make(ServiceDefs, len(services))
 	copy(servicesNotUsed, services)
 
-	for _, h := range results {
+	for i, h := range results {
 		if len(h.Ports) == 0 {
 			log.Printf("[%v] no exposed services", h.Ip)
 			continue
 		}
 
-		for _, p := range h.Ports {
+		for portIdx, p := range h.Ports {
 			if p.State == "open" {
-				checkOpenPort(services, servicesNotUsed, rules, p, h)
+				h.Ports[portIdx] = mapPort(services, servicesNotUsed, rules, &p, &h)
 			}
 		}
+		results[i] = h
 
 	}
 
@@ -151,10 +156,11 @@ func checkServices(results ResultHosts, services ServiceDefs, rules []RulesDef) 
 	}
 }
 
-func checkOpenPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port Port, host Host) {
+func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port *Port, host *Host) Port {
 
-	service, err := services.Find(port.Number, host)
+	service, err := services.Find(port.Number, *host)
 	if err == nil {
+		port.ServiceId = service.Id
 		servicesNotUsed = servicesNotUsed.Remove(service)
 		log.Printf("[%v] %v - %v (%v)",
 			host.Ip,
@@ -164,7 +170,7 @@ func checkOpenPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []Ru
 
 		for _, pDef := range service.Ports {
 			if len(pDef.Rules) != 0 && pDef.Port == port.Number && host.Inside(pDef.Hosts) {
-				checkRules(rules, pDef, &port, service, host.Ip)
+				checkRules(rules, pDef, port, service, host.Ip)
 			}
 		}
 	} else {
@@ -178,16 +184,18 @@ func checkOpenPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []Ru
 		color.Unset()
 	}
 
+	return *port
+
 }
 
-func checkRules(rules []RulesDef, port PortDef, port_result *Port, service ServiceDef, ip string) {
+func checkRules(rules []RulesDef, port PortDef, portResult *Port, service ServiceDef, ip string) {
 
 	for _, pRule := range port.Rules {
 		for _, r := range rules {
 			if r.Name == pRule {
 				if r.Type_ == "http" {
 					s := evalHTTP(r, port.Uri)
-					port_result.Rule_Results[r.Name] = s
+					portResult.RuleResults[r.Name] = s
 					if s == false {
 						color.Set(color.FgRed)
 						log.Printf("! [%v] rule %v doesn't match %v", ip, r.Name, port.Uri)

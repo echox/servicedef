@@ -34,6 +34,20 @@ func (defs *ServiceDefs) Init(servicesPath string) error {
 	return parseJSONFile(servicesPath, defs)
 }
 
+// FindById returns the given service definition or an error
+func (defs *ServiceDefs) FindById(id string) (ServiceDef, error) {
+
+	var def ServiceDef
+
+	for _, def = range *defs {
+		if def.Id == id {
+			return def, nil
+		}
+	}
+
+	return def, errors.New("NOT_FOUND")
+}
+
 // Find returns a service definition for a given host and port or an error
 func (defs *ServiceDefs) Find(port int, host Host) (ServiceDef, error) {
 
