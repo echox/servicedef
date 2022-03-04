@@ -102,16 +102,19 @@ To check the rules use `-r rules.json` and define them:
 [{
 "name":"https-redirect",
 "type":"http",
+"follow-redirects":false,
 "status":301,
 "rules":[{"location":"https://example-service.tld", "contains":"Basic realm="}]
 },{
 "name":"basic_auth",
 "type":"http",
+"follow-redirects":true,
 "status":401,
 "rules":[{"name":"WWW-Authenticate", "contains":"Basic realm="}]
 },{
 "name":"OIDC_auth",
 "type":"http",
+"follow-redirects":false,
 "status":302,
 "rules":[{"name":"location", "contains":"https://idp.example-service.tld"}]
 }]

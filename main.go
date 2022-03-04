@@ -220,11 +220,14 @@ func evalHTTP(rules RulesDef, uri string) bool {
 		return false
 	}
 
-	hc := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+	hc := &http.Client{}
+
+	if (!rules.FollowRedirects) {
+		hc.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
-		},
+		}
 	}
+
 	r, err := hc.Get(uri)
 	if err != nil {
 		log.Error(err)
@@ -251,7 +254,7 @@ func evalHTTP(rules RulesDef, uri string) bool {
 				continue
 			} else {
 				if strings.Contains(v, rule.Contains) {
-					log.Printf("[%v] matches %v", uri, rule.Contains)
+					log.Printf("[%v] matches '%v'", uri, rule.Contains)
 					continue
 				} else {
 					log.Printf("! [%v] Header mismatch for %v. Expected %v got %v", uri, rules.Name, rule.Contains, v)

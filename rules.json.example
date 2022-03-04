@@ -1,6 +1,7 @@
 [{
 "name":"basic_auth",
 "type":"http",
+"follow-redirects": false,
 "status":401,
 "rules":[{"name":"WWW-Authenticate", "contains":"Basic realm="}]
 }]
