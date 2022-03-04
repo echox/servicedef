@@ -191,6 +191,7 @@ func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef
 func checkRules(rules []RulesDef, port PortDef, portResult *Port, service ServiceDef, ip string) {
 
 	for _, pRule := range port.Rules {
+		eval := false
 		for _, r := range rules {
 			if r.Name == pRule {
 				if r.Type_ == "http" {
@@ -201,8 +202,13 @@ func checkRules(rules []RulesDef, port PortDef, portResult *Port, service Servic
 						log.Printf("! [%v] rule %v doesn't match %v", ip, r.Name, port.Uri)
 						color.Unset()
 					}
+					eval = true
+					continue
 				}
 			}
+		}
+		if !eval {
+			log.Printf("! [%v] rule %v not found in rule definitions", ip, pRule)
 		}
 	}
 }
