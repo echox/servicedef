@@ -95,7 +95,7 @@ func main() {
 	color.Set(color.FgGreen)
 	log.Println("portscanning hosts, this might take a really long time...")
 	color.Unset()
-	results := scan.Scan_hosts(hosts, cfg)
+	results := scan.ScanHosts(hosts, cfg)
 	color.Set(color.FgGreen)
 	log.Println("scanning hosts finished")
 	color.Unset()
@@ -106,7 +106,7 @@ func main() {
 	if len(services) != 0 {
 
 		log.Println("checking services...")
-		check_services(results, services, rules)
+		checkServices(results, services, rules)
 		color.Set(color.FgGreen)
 		log.Tracef("finished checking services")
 		color.Unset()
@@ -117,14 +117,14 @@ func main() {
 
 	if cfg.Graphviz != "" {
 		log.Println("writing graphviz dot file...")
-		export.Write_graphviz(results, services, hosts, cfg.Graphviz)
+		export.WriteGraphviz(results, services, hosts, cfg.Graphviz)
 		log.Tracef("finished writing graphviz dot file")
 	}
 
 	log.Println("finished")
 }
 
-func check_services(results ResultHosts, services ServiceDefs, rules []RulesDef) {
+func checkServices(results ResultHosts, services ServiceDefs, rules []RulesDef) {
 
 	servicesNotUsed := make(ServiceDefs, len(services))
 	copy(servicesNotUsed, services)
@@ -137,7 +137,7 @@ func check_services(results ResultHosts, services ServiceDefs, rules []RulesDef)
 
 		for _, p := range h.Ports {
 			if p.State == "open" {
-				check_open_port(services, servicesNotUsed, rules, p, h)
+				checkOpenPort(services, servicesNotUsed, rules, p, h)
 			}
 		}
 
@@ -151,7 +151,7 @@ func check_services(results ResultHosts, services ServiceDefs, rules []RulesDef)
 	}
 }
 
-func check_open_port(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port Port, host Host) {
+func checkOpenPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port Port, host Host) {
 
 	service, err := services.Find(port.Number, host)
 	if err == nil {
@@ -164,7 +164,7 @@ func check_open_port(services ServiceDefs, servicesNotUsed ServiceDefs, rules []
 
 		for _, pDef := range service.Ports {
 			if len(pDef.Rules) != 0 && pDef.Port == port.Number && host.Inside(pDef.Hosts) {
-				check_rules(rules, pDef, &port, service, host.Ip)
+				checkRules(rules, pDef, &port, service, host.Ip)
 			}
 		}
 	} else {
@@ -180,13 +180,13 @@ func check_open_port(services ServiceDefs, servicesNotUsed ServiceDefs, rules []
 
 }
 
-func check_rules(rules []RulesDef, port PortDef, port_result *Port, service ServiceDef, ip string) {
+func checkRules(rules []RulesDef, port PortDef, port_result *Port, service ServiceDef, ip string) {
 
 	for _, pRule := range port.Rules {
 		for _, r := range rules {
 			if r.Name == pRule {
 				if r.Type_ == "http" {
-					s := eval_http(r, port.Uri)
+					s := evalHTTP(r, port.Uri)
 					port_result.Rule_Results[r.Name] = s
 					if s == false {
 						color.Set(color.FgRed)
@@ -199,7 +199,7 @@ func check_rules(rules []RulesDef, port PortDef, port_result *Port, service Serv
 	}
 }
 
-func eval_http(rules RulesDef, uri string) bool {
+func evalHTTP(rules RulesDef, uri string) bool {
 
 	if uri == "" {
 		log.Warnf("URI needed for checking %v", rules.Name)

@@ -56,7 +56,7 @@ func portExists(target *Host, port Port) bool {
 // Scan_hosts evaluates a given list of host definitions
 // The configuration is needed for knowing if scanning progress should be
 // logged
-func Scan_hosts(hosts []HostDef, cfg config.Config) ResultHosts {
+func ScanHosts(hosts []HostDef, cfg config.Config) ResultHosts {
 
 	scanned := ScannedCounter{counter: 0, max: len(hosts)}
 	p := make(chan HostDef, scanned.max)
@@ -87,7 +87,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) ResultHosts {
 
 	for i := 1; i <= cfg.Threads; i++ {
 		wg.Add(1)
-		go scan_host_worker(i, p, &scanned, &wg, result_queue, cfg)
+		go scanHostWorker(i, p, &scanned, &wg, result_queue, cfg)
 	}
 	wg.Wait()
 	close(result_queue)
@@ -99,7 +99,7 @@ func Scan_hosts(hosts []HostDef, cfg config.Config) ResultHosts {
 
 }
 
-func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
+func scanHost(id int, host string, cfg config.Config) (*nmap.Run, error) {
 
 	log.Printf("[worker_%v] scanning %v...", id, host)
 
@@ -167,11 +167,11 @@ func scan_host(id int, host string, cfg config.Config) (*nmap.Run, error) {
 	return result, nil
 }
 
-func scan_host_worker(id int, pool chan HostDef, scanned *ScannedCounter, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
+func scanHostWorker(id int, pool chan HostDef, scanned *ScannedCounter, wg *sync.WaitGroup, result_queue chan Host, cfg config.Config) {
 
 	for hostDef := range pool {
-		if sr, err := scan_host(id, hostDef.Address, cfg); err == nil {
-			hosts := parse_nmap(sr)
+		if sr, err := scanHost(id, hostDef.Address, cfg); err == nil {
+			hosts := parseNmap(sr)
 			for _, h := range hosts {
 				h.Tags = hostDef.Tags
 				result_queue <- h
@@ -187,7 +187,7 @@ func scan_host_worker(id int, pool chan HostDef, scanned *ScannedCounter, wg *sy
 	defer wg.Done()
 }
 
-func parse_nmap_host(h nmap.Host) Host {
+func parseNmapHost(h nmap.Host) Host {
 
 	var parsed_host Host
 
@@ -221,13 +221,13 @@ func parse_nmap_host(h nmap.Host) Host {
 	return parsed_host
 }
 
-func parse_nmap(scan *nmap.Run) []Host {
+func parseNmap(scan *nmap.Run) []Host {
 
 	var hosts []Host
 
 	for _, h := range scan.Hosts {
 
-		parsed_host := parse_nmap_host(h)
+		parsed_host := parseNmapHost(h)
 		if parsed_host.Ip != "" {
 			hosts = append(hosts, parsed_host)
 		}
