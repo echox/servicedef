@@ -141,7 +141,7 @@ func mapServices(results ResultHosts, services ServiceDefs, rules []RulesDef) {
 
 		for portIdx, p := range h.Ports {
 			if p.State == "open" {
-				h.Ports[portIdx] = mapPort(services, servicesNotUsed, rules, &p, &h)
+				h.Ports[portIdx], servicesNotUsed = mapPort(services, servicesNotUsed, rules, &p, &h)
 			}
 		}
 		results[i] = h
@@ -156,7 +156,7 @@ func mapServices(results ResultHosts, services ServiceDefs, rules []RulesDef) {
 	}
 }
 
-func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port *Port, host *Host) Port {
+func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port *Port, host *Host) (Port, ServiceDefs) {
 
 	service, err := services.Find(port.Number, *host)
 	if err == nil {
@@ -184,7 +184,7 @@ func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef
 		color.Unset()
 	}
 
-	return *port
+	return *port, servicesNotUsed
 
 }
 

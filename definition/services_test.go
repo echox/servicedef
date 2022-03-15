@@ -88,13 +88,29 @@ func TestServiceRemoveLast(t *testing.T) {
 
 	services := build_servicedefs()
 
-	ssh := ServiceDef{Id: "SSH"}
-	services = services.Remove(ssh)
+	proxy := ServiceDef{Id: "Proxy"}
+	services = services.Remove(proxy)
 
 	for _, s := range services {
-		if s.Id == ssh.Id {
-			t.Errorf("Remove(Id=%s) did fail", ssh.Id)
+		if s.Id == proxy.Id {
+			t.Errorf("Remove(Id=%s) did fail", proxy.Id)
 		}
+	}
+
+	if _, err := services.FindById("Proxy"); err == nil {
+			t.Errorf("Proxy should be there")
+	}
+
+	if _, err := services.FindById("HTTP Service"); err != nil {
+			t.Errorf("HTTP Service should be there")
+	}
+
+	if _, err := services.FindById("SSH"); err != nil {
+			t.Errorf("SSH should be there")
+	}
+
+	if len(services) != 2 {
+			t.Errorf("services total should be 2 but is %v", len(services))
 	}
 }
 
@@ -109,5 +125,20 @@ func TestServiceRemoveFirst(t *testing.T) {
 		if s.Id == http.Id {
 			t.Errorf("Remove(Id=%s) did fail", http.Id)
 		}
+	}
+
+	if _, err := services.FindById("HTTP Service"); err == nil {
+			t.Errorf("HTTP Service shouldn't be there")
+	}
+
+	if _, err := services.FindById("SSH"); err != nil {
+			t.Errorf("SSH should be there")
+	}
+
+	if _, err := services.FindById("Proxy"); err != nil {
+			t.Errorf("Proxy should be there")
+	}
+	if len(services) != 2 {
+			t.Errorf("services total should be 2 but is %v", len(services))
 	}
 }
