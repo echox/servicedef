@@ -98,19 +98,19 @@ func TestServiceRemoveLast(t *testing.T) {
 	}
 
 	if _, err := services.FindById("Proxy"); err == nil {
-			t.Errorf("Proxy should be there")
+		t.Errorf("Proxy should be there")
 	}
 
 	if _, err := services.FindById("HTTP Service"); err != nil {
-			t.Errorf("HTTP Service should be there")
+		t.Errorf("HTTP Service should be there")
 	}
 
 	if _, err := services.FindById("SSH"); err != nil {
-			t.Errorf("SSH should be there")
+		t.Errorf("SSH should be there")
 	}
 
 	if len(services) != 2 {
-			t.Errorf("services total should be 2 but is %v", len(services))
+		t.Errorf("services total should be 2 but is %v", len(services))
 	}
 }
 
@@ -128,17 +128,17 @@ func TestServiceRemoveFirst(t *testing.T) {
 	}
 
 	if _, err := services.FindById("HTTP Service"); err == nil {
-			t.Errorf("HTTP Service shouldn't be there")
+		t.Errorf("HTTP Service shouldn't be there")
 	}
 
 	if _, err := services.FindById("SSH"); err != nil {
-			t.Errorf("SSH should be there")
+		t.Errorf("SSH should be there")
 	}
 
 	if _, err := services.FindById("Proxy"); err != nil {
-			t.Errorf("Proxy should be there")
+		t.Errorf("Proxy should be there")
 	}
 	if len(services) != 2 {
-			t.Errorf("services total should be 2 but is %v", len(services))
+		t.Errorf("services total should be 2 but is %v", len(services))
 	}
 }

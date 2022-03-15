@@ -222,7 +222,7 @@ func evalHTTP(rules RulesDef, uri string) bool {
 
 	hc := &http.Client{}
 
-	if (!rules.FollowRedirects) {
+	if !rules.FollowRedirects {
 		hc.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		}
