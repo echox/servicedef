@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
-
-	"net/http"
 
 	"github.com/echox/servicedef/config"
 	. "github.com/echox/servicedef/definition"
@@ -156,7 +153,7 @@ func mapServices(results ResultHosts, services ServiceDefs, rules []RulesDef) {
 	}
 }
 
-func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef, port *Port, host *Host) (Port, ServiceDefs) {
+func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules Rules, port *Port, host *Host) (Port, ServiceDefs) {
 
 	service, err := services.Find(port.Number, *host)
 	if err == nil {
@@ -170,7 +167,7 @@ func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef
 
 		for _, pDef := range service.Ports {
 			if len(pDef.Rules) != 0 && pDef.Port == port.Number && host.Inside(pDef.Hosts) {
-				checkRules(rules, pDef, port, service, host.Ip)
+				rules.Check(pDef, port, service, host.Ip)
 			}
 		}
 	} else {
@@ -186,85 +183,4 @@ func mapPort(services ServiceDefs, servicesNotUsed ServiceDefs, rules []RulesDef
 
 	return *port, servicesNotUsed
 
-}
-
-func checkRules(rules []RulesDef, port PortDef, portResult *Port, service ServiceDef, ip string) {
-
-	for _, pRule := range port.Rules {
-		eval := false
-		for _, r := range rules {
-			if r.Name == pRule {
-				if r.Type_ == "http" {
-					s := evalHTTP(r, port.Uri)
-					portResult.RuleResults[r.Name] = s
-					if s == false {
-						color.Set(color.FgRed)
-						log.Printf("! [%v] rule %v doesn't match %v", ip, r.Name, port.Uri)
-						color.Unset()
-					}
-					eval = true
-					continue
-				}
-			}
-		}
-		if !eval {
-			log.Printf("! [%v] rule %v not found in rule definitions", ip, pRule)
-		}
-	}
-}
-
-func evalHTTP(rules RulesDef, uri string) bool {
-
-	if uri == "" {
-		log.Warnf("URI needed for checking %v", rules.Name)
-		return false
-	}
-
-	hc := &http.Client{}
-
-	if !rules.FollowRedirects {
-		hc.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		}
-	}
-
-	r, err := hc.Get(uri)
-	if err != nil {
-		log.Error(err)
-		return false
-	}
-	defer r.Body.Close()
-	//body, err := io.ReadAll(r.Body)
-
-	if rules.Status != 0 {
-
-		if r.StatusCode != rules.Status {
-			log.Printf("! [%v] Status doesn't match. Expected %v got %v", uri, rules.Status, r.Status)
-			return false
-		}
-	}
-
-	for _, rule := range rules.Rules {
-		v := r.Header.Get(rule.Name)
-		if v == "" {
-			return false
-		} else {
-			if rule.Contains == "" {
-				log.Printf("rule %v on %v matches header-rule '%v'", rules.Name, uri, rule.Name)
-				continue
-			} else {
-				if strings.Contains(v, rule.Contains) {
-					log.Printf("[%v] matches '%v'", uri, rule.Contains)
-					continue
-				} else {
-					log.Printf("! [%v] Header mismatch for %v. Expected %v got %v", uri, rules.Name, rule.Contains, v)
-					return false
-				}
-
-			}
-		}
-
-	}
-
-	return true
 }
