@@ -1,6 +1,7 @@
 package definition
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// RulesDef collection which can be referenced as Rules within a PortDef
+// RulesDef can be referenced as one of the desired matching rules within a PortDef of a service
 type RulesDef struct {
 	Name            string    `json:"name"`             // Identifier of the rule
 	Type_           string    `json:"type"`             // Type, currently 'http' is the only supported type
@@ -33,37 +34,51 @@ func (rules *Rules) Init(rulesFile string) error {
 	return parseJSONFile(rulesFile, rules)
 }
 
+
 // Check all rules against a specified host and port
 func (rules *Rules) Check(port PortDef, portResult *Port, service ServiceDef, ip string) {
 
 	for _, pRule := range port.Rules {
-		eval := false
+		evaluated := false
 		for _, r := range *(rules) {
 			if r.Name == pRule {
-				if r.Type_ == "http" {
-					s := evalHTTP(r, port.Uri)
-					portResult.RuleResults[r.Name] = s
-					if s == false {
-						color.Set(color.FgRed)
-						log.Printf("! [%v] rule %v doesn't match %v", ip, r.Name, port.Uri)
-						color.Unset()
-					}
-					eval = true
-					continue
+				match, err := r.eval(port)
+				portResult.RuleResults[r.Name] = match
+				if err != nil {
+					color.Set(color.FgYellow)
+					log.Printf("! [%s] rule %s couldn't evaluated: %v", ip, r.Name, err)
+					color.Unset()
+				} else if match == false {
+					color.Set(color.FgRed)
+					log.Printf("! [%s] rule %s doesn't match %s", ip, r.Name, port.Uri)
+					color.Unset()
 				}
+				evaluated = true
+				continue
 			}
 		}
-		if !eval {
+		if !evaluated {
 			log.Printf("! [%v] rule %v not found in rule definitions", ip, pRule)
 		}
 	}
 }
 
-func evalHTTP(rules RulesDef, uri string) bool {
+func (rule RulesDef) eval(port PortDef) (bool, error) {
+
+	switch rule.Type_ {
+
+	case "http":
+		return evalHTTP(rule, port.Uri)
+	default:
+		return false, fmt.Errorf("Couldn't find implementation for rule type %s (%s)", rule.Type_, rule.Name)
+	}
+
+}
+
+func evalHTTP(rules RulesDef, uri string) (bool, error) {
 
 	if uri == "" {
-		log.Warnf("URI needed for checking %v", rules.Name)
-		return false
+		return false, fmt.Errorf("URI needed for checking %s", rules.Name)
 	}
 
 	hc := &http.Client{}
@@ -76,8 +91,7 @@ func evalHTTP(rules RulesDef, uri string) bool {
 
 	r, err := hc.Get(uri)
 	if err != nil {
-		log.Error(err)
-		return false
+		return false, err
 	}
 	defer r.Body.Close()
 	//body, err := io.ReadAll(r.Body)
@@ -86,14 +100,14 @@ func evalHTTP(rules RulesDef, uri string) bool {
 
 		if r.StatusCode != rules.Status {
 			log.Printf("! [%v] Status doesn't match. Expected %v got %v", uri, rules.Status, r.Status)
-			return false
+			return false, nil
 		}
 	}
 
 	for _, rule := range rules.Rules {
 		v := r.Header.Get(rule.Name)
 		if v == "" {
-			return false
+			return false, nil
 		} else {
 			if rule.Contains == "" {
 				log.Printf("rule %v on %v matches header-rule '%v'", rules.Name, uri, rule.Name)
@@ -104,7 +118,7 @@ func evalHTTP(rules RulesDef, uri string) bool {
 					continue
 				} else {
 					log.Printf("! [%v] Header mismatch for %v. Expected %v got %v", uri, rules.Name, rule.Contains, v)
-					return false
+					return false, nil
 				}
 
 			}
@@ -112,5 +126,5 @@ func evalHTTP(rules RulesDef, uri string) bool {
 
 	}
 
-	return true
+	return true, nil
 }
