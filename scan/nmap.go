@@ -42,6 +42,20 @@ func mergeHosts(target *Host, source Host) {
 			target.Ports = append(target.Ports, port)
 		}
 	}
+	for _, tag := range source.Tags {
+		if !tagExists(target, tag) {
+			target.Tags = append(target.Tags, tag)
+		}
+	}
+}
+
+func tagExists(host *Host, tag string) bool {
+	for _, current := range host.Tags {
+		if current == tag {
+			return true
+		}
+	}
+	return false
 }
 
 func portExists(target *Host, port Port) bool {
